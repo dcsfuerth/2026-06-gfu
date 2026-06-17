@@ -8,13 +8,8 @@
   </header>
 
   <div class="book-list__search">
-    <input
-      type="text"
-      class="book-list__search-input"
-      placeholder="Bücher suchen..."
-      aria-label="Bücher suchen"
-      [(ngModel)]="suchBegriff"
-    />
+    <input type="text" class="book-list__search-input" placeholder="Bücher suchen..." aria-label="Bücher suchen"
+      [(ngModel)]="suchBegriff" />
   </div>
 
   @if (suchBegriff) {
@@ -40,7 +35,7 @@
         <td>{{ book.title }}</td>
         <td>
           <span class="price" [class.price--discount]="book.price < 20">
-            {{ book.price }} 
+            {{ book.price | currency: 'EUR' : 'symbol' : '1.2-2' }}
           </span>
         </td>
         @if (coverVisible) {
