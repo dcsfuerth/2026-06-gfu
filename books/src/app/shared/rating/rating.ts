@@ -1,6 +1,10 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
+export class RatingEvent {
+  constructor(public id: string, public operation: string) { }
+}
+
 @Component({
   selector: 'rating',
   imports: [DecimalPipe],
@@ -22,6 +26,10 @@ export class Rating implements OnChanges {
   down: EventEmitter<string> = new EventEmitter<string>();
 
 
+
+  @Output()
+  ratingChange: EventEmitter<RatingEvent> = new EventEmitter<RatingEvent>();
+
   ngOnChanges(changes: SimpleChanges): void {
     console.log('Rating.ngOnChanges()', changes);
   }
@@ -29,6 +37,8 @@ export class Rating implements OnChanges {
   upvote() {
     console.log(`Upvote für ${this.id}`);
     this.up.emit(this.id);
+
+    // this.ratingChange.emit(new RatingEvent(this.id, 'upvote'));
   }
 
   downvote() {

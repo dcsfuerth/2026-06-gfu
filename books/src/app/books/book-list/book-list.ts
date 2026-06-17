@@ -1,7 +1,7 @@
 import { CurrencyPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Rating } from "../../shared/rating/rating";
+import { Rating, RatingEvent } from "../../shared/rating/rating";
 import { Book } from '../book';
 import { BookFilterPipe } from "../book-filter-pipe";
 
@@ -53,6 +53,14 @@ export class BookList implements OnInit, OnDestroy {
     const book = this.books.find(book => book.isbn === isbn);
     if (book) {
       book.stars = +Math.max(1, book.stars - 0.1).toFixed(1);
+    }
+  }
+
+  ratingChange(event: RatingEvent) {
+    if (event.operation === 'upvote') {
+      this.upvote(event.id);
+    } else if (event.operation === 'downvote') {
+      this.downvote(event.id);
     }
   }
 
