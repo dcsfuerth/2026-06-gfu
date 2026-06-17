@@ -29,7 +29,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (book of books; track book; let i = $index) {
+      @for (book of (books | bookFilter : suchBegriff); track book; let i = $index) {
       <tr>
         <td class="book-table__isbn">{{ i + 1 }}: {{ book.isbn }}</td>
         <td>{{ book.title }}</td>
@@ -55,6 +55,6 @@
 </div>
 }
 
-@if (books?.length === 0) {
+@if (books.length === 0) {
 <div class="book-list book-list--empty">Leider noch keine Bücher vorhanden.</div>
 }

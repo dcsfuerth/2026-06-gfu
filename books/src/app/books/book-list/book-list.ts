@@ -1,17 +1,18 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Book } from '../book';
+import { BookFilterPipe } from "../book-filter-pipe";
 
 
 @Component({
   selector: 'book-list',
-  imports: [FormsModule, CurrencyPipe],
+  imports: [FormsModule, CurrencyPipe, BookFilterPipe],
   templateUrl: './book-list.html',
   styleUrl: './book-list.css',
   // encapsulation: ViewEncapsulation.None
 })
-export class BookList {
+export class BookList implements OnInit, OnDestroy {
 
   protected books: Book[] = [
     { isbn: '123-456-789', title: 'Angular 21', price: 19.99, coverUrl: 'https://m.media-amazon.com/images/I/71Wv+d6oP6L._AC_UY218_.jpg' },
@@ -19,9 +20,24 @@ export class BookList {
   ];
 
   userName: string = 'Peter';
-
   coverVisible: boolean = true;
   suchBegriff: string = '';
+
+  constructor() {
+    console.log('BookList.constructor()');
+  }
+
+  ngOnInit() {
+    console.log('BookList.ngOnInit()');
+  }
+
+  ngOnDestroy() {
+    console.log('BookList.ngOnDestroy()');
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    console.log('BookList.ngOnChanges()', changes);
+  }
 
   deleteBook(isbn: string) {
     // const booksJson = JSON.stringify(this.books);
