@@ -1,13 +1,14 @@
 import { CurrencyPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Rating } from "../../shared/rating/rating";
 import { Book } from '../book';
 import { BookFilterPipe } from "../book-filter-pipe";
 
 
 @Component({
   selector: 'book-list',
-  imports: [FormsModule, CurrencyPipe, BookFilterPipe],
+  imports: [FormsModule, CurrencyPipe, BookFilterPipe, Rating],
   templateUrl: './book-list.html',
   styleUrl: './book-list.css',
   // encapsulation: ViewEncapsulation.None
@@ -15,8 +16,8 @@ import { BookFilterPipe } from "../book-filter-pipe";
 export class BookList implements OnInit, OnDestroy {
 
   protected books: Book[] = [
-    { isbn: '123-456-789', title: 'Angular 21', price: 19.99, coverUrl: 'https://m.media-amazon.com/images/I/71Wv+d6oP6L._AC_UY218_.jpg' },
-    { isbn: '987-654-321', title: 'Angular 22', price: 29.9, coverUrl: 'https://m.media-amazon.com/images/I/71xR-hhRjmL._AC_UY218_.jpg' }
+    { isbn: '123-456-789', title: 'Angular 21', price: 19.99, coverUrl: 'https://m.media-amazon.com/images/I/71Wv+d6oP6L._AC_UY218_.jpg', stars: 3.5 },
+    { isbn: '987-654-321', title: 'Angular 22', price: 29.9, coverUrl: 'https://m.media-amazon.com/images/I/71xR-hhRjmL._AC_UY218_.jpg', stars: 4.5 }
   ];
 
   userName: string = 'Peter';
@@ -37,6 +38,22 @@ export class BookList implements OnInit, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges) {
     console.log('BookList.ngOnChanges()', changes);
+  }
+
+  upvote(isbn: string) {
+    console.log(`BookList - Upvote für Buch mit ISBN ${isbn}`);
+    const book = this.books.find(book => book.isbn === isbn);
+    if (book) {
+      book.stars = +Math.min(5, book.stars + 0.1).toFixed(1);
+    }
+  }
+
+  downvote(isbn: string) {
+    console.log(`BookList - Downvote für Buch mit ISBN ${isbn}`);
+    const book = this.books.find(book => book.isbn === isbn);
+    if (book) {
+      book.stars = +Math.max(1, book.stars - 0.1).toFixed(1);
+    }
   }
 
   deleteBook(isbn: string) {

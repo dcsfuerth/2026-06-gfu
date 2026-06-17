@@ -22,6 +22,7 @@
         <th>ISBN</th>
         <th>Titel</th>
         <th>Preis</th>
+        <th>Bewertung</th>
         @if (coverVisible) {
         <th>Cover</th>
         }
@@ -37,6 +38,9 @@
           <span class="price" [class.price--discount]="book.price < 20">
             {{ book.price | currency: 'EUR' : 'symbol' : '1.2-2' }}
           </span>
+        </td>
+        <td>
+          <rating [stars]="book.stars" [id]="book.isbn" (up)="upvote($event)" (down)="downvote($event)"></rating>
         </td>
         @if (coverVisible) {
         <td>
