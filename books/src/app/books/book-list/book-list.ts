@@ -9,14 +9,15 @@ import { Component } from '@angular/core';
 })
 export class BookList {
 
-  books = [
+  protected books: Array<any> = [
     { isbn: '123-456-789', title: 'Angular 21', price: 19.99 },
     { isbn: '987-654-321', title: 'Angular 22', price: 29.99 }
   ];
 
-  userName = 'Peter';
+  userName: string = 'Peter';
 
   deleteBook(isbn: string) {
+    // const booksJson = JSON.stringify(this.books);
     console.log(`Lösche Buch mit ISBN ${isbn}`);
   }
 

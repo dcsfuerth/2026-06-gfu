@@ -1,3 +1,18 @@
 <p>book-list works!</p>
 
 Die Bücher: {{books | json}}
+
+<table>
+    <tr>
+        <th>ISBN</th>
+        <th>Titel</th>
+        <th>Preis</th>
+        <th>Aktion</th>
+    </tr>
+    <tr *ngFor="let book of books">
+        <td>{{book.isbn}}</td>
+        <td>{{book.title}}</td>
+        <td>{{book.price}}</td>
+        <td><button (click)="deleteBook(book.isbn)">Löschen</button></td>
+    </tr>
+</table>
