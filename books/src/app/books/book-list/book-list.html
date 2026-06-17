@@ -1,8 +1,12 @@
 @if (books && books.length > 0) {
-Die Bücher:
+Die Bücher gefiltert nach "{{ suchBegriff }}":
 
 <p>
     <button (click)="toggleCover()">Cover ein/ausblenden</button>
+</p>
+
+<p>
+    <input type="text" [(ngModel)]="suchBegriff" placeholder="Bücher suchen..." />
 </p>
 
 <div>

@@ -1,9 +1,11 @@
 import { NgClass } from '@angular/common';
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
 
 @Component({
   selector: 'book-list',
-  imports: [NgClass],
+  imports: [FormsModule, NgClass],
   templateUrl: './book-list.html',
   styleUrl: './book-list.css',
   // encapsulation: ViewEncapsulation.None
@@ -18,6 +20,7 @@ export class BookList {
   userName: string = 'Peter';
 
   coverVisible: boolean = true;
+  suchBegriff: string = '';
 
   deleteBook(isbn: string) {
     // const booksJson = JSON.stringify(this.books);
