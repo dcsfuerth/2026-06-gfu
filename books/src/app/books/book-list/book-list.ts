@@ -9,7 +9,7 @@ import { Component } from '@angular/core';
 })
 export class BookList {
 
-  protected books: Array<any> = [
+  protected books = [
     { isbn: '123-456-789', title: 'Angular 21', price: 19.99 },
     { isbn: '987-654-321', title: 'Angular 22', price: 29.99 }
   ];
