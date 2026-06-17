@@ -1,11 +1,10 @@
-import { NgClass } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 
 @Component({
   selector: 'book-list',
-  imports: [FormsModule, NgClass],
+  imports: [FormsModule],
   templateUrl: './book-list.html',
   styleUrl: './book-list.css',
   // encapsulation: ViewEncapsulation.None

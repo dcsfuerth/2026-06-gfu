@@ -1,3 +1,145 @@
-.on-discount {
-    color: green
+:host {
+  display: block;
+}
+
+.book-list {
+  max-width: 48rem;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.15);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #111827;
+}
+
+.book-list--empty {
+  text-align: center;
+  color: #6b7280;
+}
+
+.book-list__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.book-list__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.book-list__search-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-size: 1rem;
+  color: #111827;
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.book-list__search-input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.book-list__hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.book-table {
+  width: 100%;
+  margin-top: 1.25rem;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.book-table th {
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.book-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+}
+
+.book-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.book-table__isbn {
+  color: #6b7280;
+  font-variant-numeric: tabular-nums;
+}
+
+.book-table__cover {
+  width: 40px;
+  height: auto;
+  border-radius: 0.25rem;
+  display: block;
+}
+
+.price {
+  font-weight: 600;
+  color: #111827;
+}
+
+.price--discount {
+  color: #059669;
+}
+
+.btn {
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+.btn--ghost {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn--ghost:hover {
+  background: #e5e7eb;
+}
+
+.btn--danger {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.btn--danger:hover {
+  background: #fee2e2;
 }

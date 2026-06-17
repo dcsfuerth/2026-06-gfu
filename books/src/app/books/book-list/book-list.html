@@ -1,40 +1,65 @@
 @if (books && books.length > 0) {
-Die Bücher gefiltert nach "{{ suchBegriff }}":
+<div class="book-list">
+  <header class="book-list__header">
+    <h2 class="book-list__title">Bücher</h2>
+    <button type="button" class="btn btn--ghost" (click)="toggleCover()">
+      Cover ein/ausblenden
+    </button>
+  </header>
 
-<p>
-    <button (click)="toggleCover()">Cover ein/ausblenden</button>
-</p>
+  <div class="book-list__search">
+    <input
+      type="text"
+      class="book-list__search-input"
+      placeholder="Bücher suchen..."
+      aria-label="Bücher suchen"
+      [(ngModel)]="suchBegriff"
+    />
+  </div>
 
-<p>
-    <input type="text" [(ngModel)]="suchBegriff" placeholder="Bücher suchen..." />
-</p>
+  @if (suchBegriff) {
+  <p class="book-list__hint">Gefiltert nach „{{ suchBegriff }}"</p>
+  }
 
-<div>
-    <table border="1">
-        <tr>
-            <th>ISBN</th>
-            <th>Titel</th>
-            <th>Preis</th>
-            <th>Cover</th>
-            <th>Aktion</th>
-        </tr>
-        @for (book of books; track book; let i = $index) {
-        <tr>
-            <td>{{i+1}}: {{ book.isbn }}</td>
-            <td>{{ book.title }}</td>
-            <td [ngClass]="{ 'on-discount': book.price < 20 }">{{ book.price }}</td>
-            <td width="70" height="100">
-                @if (coverVisible) {
-                <img [src]="book.coverUrl" [alt]="book.title" [style.width.px]="50" />
-                }
-            </td>
-            <td><button (click)="deleteBook(book.isbn)">Löschen</button></td>
-        </tr>
+  <table class="book-table">
+    <thead>
+      <tr>
+        <th>ISBN</th>
+        <th>Titel</th>
+        <th>Preis</th>
+        @if (coverVisible) {
+        <th>Cover</th>
         }
-    </table>
+        <th>Aktion</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (book of books; track book; let i = $index) {
+      <tr>
+        <td class="book-table__isbn">{{ i + 1 }}: {{ book.isbn }}</td>
+        <td>{{ book.title }}</td>
+        <td>
+          <span class="price" [class.price--discount]="book.price < 20">
+            {{ book.price }} €
+          </span>
+        </td>
+        @if (coverVisible) {
+        <td>
+          <img class="book-table__cover" [src]="book.coverUrl" [alt]="book.title" />
+        </td>
+        }
+        <td>
+          <button type="button" class="btn btn--danger" (click)="deleteBook(book.isbn)">
+            Löschen
+          </button>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
 </div>
 }
 
 @if (books?.length === 0) {
-<div>Leider noch keine Bücher vorhanden.</div>
+<div class="book-list book-list--empty">Leider noch keine Bücher vorhanden.</div>
 }
