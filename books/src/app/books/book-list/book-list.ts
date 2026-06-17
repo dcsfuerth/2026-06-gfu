@@ -1,9 +1,10 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, inject, Inject, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Rating, RatingEvent } from "../../shared/rating/rating";
 import { Book } from '../book';
 import { BookFilterPipe } from "../book-filter-pipe";
+import { BookData } from '../bookdata/book-data';
 
 
 @Component({
@@ -24,9 +25,11 @@ export class BookList implements OnInit, OnDestroy {
   coverVisible: boolean = true;
   suchBegriff: string = '';
 
-  constructor() {
-    console.log('BookList.constructor()');
-  }
+  // constructor(private bookDataService: BookData) {
+  //   console.log('BookList.constructor()');
+  // }
+
+  private bookDataService: BookData = inject(BookData);
 
   ngOnInit() {
     console.log('BookList.ngOnInit()');
