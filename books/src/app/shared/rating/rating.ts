@@ -1,4 +1,3 @@
-import { DecimalPipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
 export class RatingEvent {
@@ -7,14 +6,26 @@ export class RatingEvent {
 
 @Component({
   selector: 'rating',
-  imports: [DecimalPipe],
   templateUrl: './rating.html',
   styleUrl: './rating.css',
 })
 export class Rating implements OnChanges {
 
+  /** Anzahl der anzuzeigenden Sterne. */
+  readonly maxStars = 5;
+
   @Input()
   stars: number = 3.2;
+
+  /**
+   * Füllgrad (0–100 %) je Stern, abgeleitet aus `stars`.
+   * z. B. stars = 3.5 -> [100, 100, 100, 50, 0]
+   */
+  get starFills(): number[] {
+    return Array.from({ length: this.maxStars }, (_, i) =>
+      Math.max(0, Math.min(1, this.stars - i)) * 100
+    );
+  }
 
   @Input()
   id: string = ``;
