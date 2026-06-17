@@ -1,0 +1,16 @@
+<p>Calculator</p>
+
+<p>
+    <input type="number" [(ngModel)]="x">
+</p>
+<p>
+    <input type="number" [(ngModel)]="y">
+</p>
+<p>
+    <button (click)="add()">Add</button>
+    <button (click)="subtract()">Subtract</button>
+    <button (click)="clear()">[C]</button>
+</p>
+<p>
+    Ergebnis: {{result}}
+</p>
