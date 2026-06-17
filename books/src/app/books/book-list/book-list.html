@@ -1,18 +1,29 @@
 @if (books && books.length > 0) {
 Die Bücher:
+
+<p>
+    <button (click)="toggleCover()">Cover ein/ausblenden</button>
+</p>
+
 <div>
     <table border="1">
         <tr>
             <th>ISBN</th>
             <th>Titel</th>
             <th>Preis</th>
+            <th>Cover</th>
             <th>Aktion</th>
         </tr>
         @for (book of books; track book; let i = $index) {
         <tr>
             <td>{{i+1}}: {{ book.isbn }}</td>
             <td>{{ book.title }}</td>
-            <td>{{ book.price }}</td>
+            <td [ngClass]="{ 'on-discount': book.price < 20 }">{{ book.price }}</td>
+            <td width="70" height="100">
+                @if (coverVisible) {
+                <img [src]="book.coverUrl" [alt]="book.title" [style.width.px]="50" />
+                }
+            </td>
             <td><button (click)="deleteBook(book.isbn)">Löschen</button></td>
         </tr>
         }
