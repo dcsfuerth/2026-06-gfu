@@ -35,7 +35,15 @@
     <tbody>
       @for (book of (books | bookFilter : suchBegriff); track book; let i = $index) {
       <tr>
-        <td class="book-table__isbn">{{ i + 1 }}: {{ book.isbn }}</td>
+        <td class="book-table__isbn">
+
+          <a [routerLink]="['/book', book.isbn]">{{ book.isbn }}</a>
+
+          <!-- {{ book.isbn }} -->
+        </td>
+
+
+
         <td>{{ book.title }}</td>
         <td>
           <span class="price" [class.price--discount]="book.price < 20">
