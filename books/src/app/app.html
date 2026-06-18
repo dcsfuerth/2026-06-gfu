@@ -1,10 +1,44 @@
-<p>
-    <a routerLink='/'>Start</a>
-    <a [routerLink]="['/books']" [routerLinkActive]="'text-uppercase'">Bücher</a>
-    <a [routerLink]="['/calculator']" [routerLinkActive]="'text-uppercase'">Taschenrechner</a>
-    <a [routerLink]="['/spielwiese']" [routerLinkActive]="'text-uppercase'">Spielwiese</a>
-</p>
+<header class="nav">
+  <div class="nav__inner">
+    <a class="nav__brand" routerLink="/">
+      <span class="nav__brand-icon" aria-hidden="true">📚</span>
+      <span class="nav__brand-text">{{ title }}</span>
+    </a>
 
-<button (click)="stop()">Subscription beenden</button>
+    <nav class="nav__links" aria-label="Hauptnavigation">
+      <a
+        class="nav__link"
+        routerLink="/"
+        routerLinkActive="nav__link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        >Start</a
+      >
+      <a
+        class="nav__link"
+        [routerLink]="['/books']"
+        routerLinkActive="nav__link--active"
+        >Bücher</a
+      >
+      <a
+        class="nav__link"
+        [routerLink]="['/calculator']"
+        routerLinkActive="nav__link--active"
+        >Taschenrechner</a
+      >
+      <a
+        class="nav__link"
+        [routerLink]="['/spielwiese']"
+        routerLinkActive="nav__link--active"
+        >Spielwiese</a
+      >
+    </nav>
 
-<router-outlet />
+    <button class="nav__stop btn btn--ghost" type="button" (click)="stop()">
+      Subscription beenden
+    </button>
+  </div>
+</header>
+
+<main class="content">
+  <router-outlet />
+</main>
