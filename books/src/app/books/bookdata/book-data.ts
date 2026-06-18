@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { Book } from '../book';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BookData {
 
-  private URL = 'http://localhost:3000';
+  private URL = environment.SERVER_URL;
 
   constructor(private http: HttpClient) { }
 
