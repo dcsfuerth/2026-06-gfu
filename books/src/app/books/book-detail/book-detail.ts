@@ -2,17 +2,18 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookData } from '../bookdata/book-data';
 import { Book } from '../book';
-import { JsonPipe } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'books-book-detail',
-  imports: [JsonPipe],
+  imports: [CurrencyPipe],
   templateUrl: './book-detail.html',
   styleUrl: './book-detail.css',
 })
 export class BookDetail implements OnInit {
 
   protected book: Book | undefined;
+  protected readonly maxStars = Array.from({ length: 5 });
 
   constructor(private router: Router, private bookDataService: BookData, private cd: ChangeDetectorRef) { }
 

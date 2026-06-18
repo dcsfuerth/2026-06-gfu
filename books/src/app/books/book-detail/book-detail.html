@@ -1,10 +1,57 @@
-<p>book-detail works!</p>
-
 @if (book) {
-    {{ book | json }}
-}
-@else {
-    <p>Buch leider nicht gefunden.</p>
-}
+  <article class="book-detail">
+    <div class="book-detail__cover-wrap">
+      @if (book.coverUrl) {
+        <img class="book-detail__cover" [src]="book.coverUrl" [alt]="'Cover von ' + book.title" />
+      } @else {
+        <div class="book-detail__cover book-detail__cover--placeholder" aria-hidden="true">Kein Cover</div>
+      }
+    </div>
 
-<button (click)="goBack()">Zurück zur Liste</button>
+    <div class="book-detail__body">
+      <h1 class="book-detail__title">{{ book.title }}</h1>
+
+      <dl class="book-detail__fields">
+        <div class="book-detail__field">
+          <dt class="book-detail__label">ISBN</dt>
+          <dd class="book-detail__value book-detail__value--mono">{{ book.isbn }}</dd>
+        </div>
+
+        <div class="book-detail__field">
+          <dt class="book-detail__label">Preis</dt>
+          <dd class="book-detail__value book-detail__price">{{ book.price | currency: 'EUR' }}</dd>
+        </div>
+
+        <div class="book-detail__field">
+          <dt class="book-detail__label">Bewertung</dt>
+          <dd class="book-detail__value">
+            <span class="book-detail__stars" [attr.aria-label]="book.stars + ' von 5 Sternen'">
+              @for (star of maxStars; track $index) {
+                <span class="book-detail__star" [class.book-detail__star--filled]="$index < book.stars" aria-hidden="true">★</span>
+              }
+            </span>
+            <span class="book-detail__stars-count">{{ book.stars }} / 5</span>
+          </dd>
+        </div>
+
+        <div class="book-detail__field book-detail__field--full">
+          <dt class="book-detail__label">Kommentar</dt>
+          <dd class="book-detail__value">
+            @if (book.comment) {
+              {{ book.comment }}
+            } @else {
+              <span class="book-detail__muted">Kein Kommentar vorhanden.</span>
+            }
+          </dd>
+        </div>
+      </dl>
+
+      <button class="btn btn--ghost" type="button" (click)="goBack()">← Zurück zur Liste</button>
+    </div>
+  </article>
+} @else {
+  <div class="book-detail book-detail--empty">
+    <p>Buch leider nicht gefunden.</p>
+    <button class="btn btn--ghost" type="button" (click)="goBack()">← Zurück zur Liste</button>
+  </div>
+}
