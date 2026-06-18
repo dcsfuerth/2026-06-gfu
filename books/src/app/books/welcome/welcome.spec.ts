@@ -19,4 +19,10 @@ describe('Welcome', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should render the welcome title', () => {
+    fixture.detectChanges();
+    const title = fixture.nativeElement.querySelector('.welcome__title');
+    expect(title?.textContent).toContain('Willkommen in der Bücherverwaltung!');
+  });
 });

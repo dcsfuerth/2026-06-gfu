@@ -1,0 +1,33 @@
+:host {
+  display: block;
+}
+
+.welcome {
+  max-width: 48rem;
+  margin: 2rem auto;
+  padding: 2.5rem 1.5rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.15);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  text-align: center;
+}
+
+.welcome__icon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.welcome__title {
+  margin: 1rem 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.welcome__text {
+  margin: 0;
+  font-size: 1rem;
+  color: #6b7280;
+}
