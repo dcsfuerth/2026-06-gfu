@@ -6,12 +6,13 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "db:mock": "json-server ./src/data/db.json -w -d 100 -i isbn"
   },
   "private": true,
   "packageManager": "npm@11.12.1",
   "dependencies": {
-    "@angular/common": "^21.2.0",   
+    "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
     "@angular/core": "^21.2.0",
     "@angular/forms": "^21.2.0",
