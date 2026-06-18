@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavigationStart, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { filter } from 'rxjs';
+import { filter, map, Subscription } from 'rxjs';
 
 @Component({
   selector: 'books-root',
@@ -9,18 +9,23 @@ import { filter } from 'rxjs';
   styleUrl: './app.css'
 })
 export class App {
+  private mysubscription: Subscription;
+  public title: string = 'Bücherverwaltung';
 
   constructor(private router: Router) {
 
     const eventStream = this.router.events;
     const eventStream2 = eventStream.pipe(filter(event => event instanceof NavigationStart));
+    const eventStream3 = eventStream2.pipe(map(event => event.url));
 
-    eventStream2.subscribe(event => {
-      console.log('Router Event:', event, typeof event, event.constructor.name);
+    this.mysubscription = eventStream3.subscribe(event => {
+      console.log('Router Event:', event);
     });
   }
 
-  public title: string = 'Bücherverwaltung';
+
+  stop() {
+    this.mysubscription?.unsubscribe();
+  }
 }
 
-const antwort = 42;
