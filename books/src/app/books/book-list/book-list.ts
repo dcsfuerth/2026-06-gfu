@@ -1,4 +1,4 @@
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, JsonPipe } from '@angular/common';
 import { Component, inject, Inject, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Rating, RatingEvent } from "../../shared/rating/rating";
@@ -9,17 +9,14 @@ import { BookData } from '../bookdata/book-data';
 
 @Component({
   selector: 'book-list',
-  imports: [FormsModule, CurrencyPipe, BookFilterPipe, Rating],
+  imports: [FormsModule, CurrencyPipe, BookFilterPipe, Rating, JsonPipe],
   templateUrl: './book-list.html',
   styleUrl: './book-list.css',
   // encapsulation: ViewEncapsulation.None
 })
 export class BookList implements OnInit, OnDestroy {
 
-  protected books: Book[] = [
-    { isbn: '123-456-789', title: 'Angular 21', price: 19.99, coverUrl: 'https://m.media-amazon.com/images/I/71Wv+d6oP6L._AC_UY218_.jpg', stars: 3.5 },
-    { isbn: '987-654-321', title: 'Angular 22', price: 29.9, coverUrl: 'https://m.media-amazon.com/images/I/71xR-hhRjmL._AC_UY218_.jpg', stars: 4.5 }
-  ];
+  protected books: Book[] = [];
 
   userName: string = 'Peter';
   coverVisible: boolean = true;
@@ -32,7 +29,7 @@ export class BookList implements OnInit, OnDestroy {
   private bookDataService: BookData = inject(BookData);
 
   ngOnInit() {
-    console.log('BookList.ngOnInit()');
+    this.books = this.bookDataService.getBooks();
   }
 
   ngOnDestroy() {
