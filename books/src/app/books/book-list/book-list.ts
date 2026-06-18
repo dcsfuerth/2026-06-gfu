@@ -21,14 +21,7 @@ export class BookList implements OnInit, OnDestroy {
   coverVisible: boolean = true;
   suchBegriff: string = '';
 
-  constructor(private cd: ChangeDetectorRef) {
-
-  }
-
-  // constructor(private bookDataService: BookData) {
-  //   console.log('BookList.constructor()');
-  // }
-
+  private cd: ChangeDetectorRef = inject(ChangeDetectorRef);
   private bookDataService: BookData = inject(BookData);
 
   async ngOnInit() {

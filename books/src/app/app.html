@@ -1,11 +1,7 @@
-<div>
-    Hallo {{title}}!
-</div>
-
-<!-- <calculator></calculator> -->
-
-<hr />
-
-<book-list kundennummer="12345"></book-list>
+<p>
+    <a routerLink='/'>Start</a>
+    <a [routerLink]="['/books']">Bücher</a>
+    <a [routerLink]="['/book', '123-456-789']">Buch 123</a>
+</p>
 
 <router-outlet />
