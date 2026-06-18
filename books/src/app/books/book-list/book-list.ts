@@ -5,11 +5,12 @@ import { Rating, RatingEvent } from "../../shared/rating/rating";
 import { Book } from '../book';
 import { BookFilterPipe } from "../book-filter-pipe";
 import { BookData } from '../bookdata/book-data';
+import { RouterLink } from '@angular/router';
 
 
 @Component({
   selector: 'book-list',
-  imports: [FormsModule, CurrencyPipe, BookFilterPipe, Rating],
+  imports: [FormsModule, CurrencyPipe, BookFilterPipe, Rating, RouterLink],
   templateUrl: './book-list.html',
   styleUrl: './book-list.css',
   // encapsulation: ViewEncapsulation.None
