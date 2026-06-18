@@ -4,10 +4,12 @@ import { BookList } from './books/book-list/book-list';
 import { Welcome } from './books/welcome/welcome';
 import { NotFound } from './shared/not-found/not-found';
 import { bookGuard } from './books/book-guard';
+import { Calculator } from './shared/calculator/calculator';
 
 export const routes: Routes = [
     { path: '', component: Welcome, pathMatch: 'full' },
     { path: 'books', component: BookList },
     { path: 'book/:isbn', component: BookDetail, canActivate: [bookGuard] },
+    { path: 'calculator', component: Calculator },
     { path: '**', component: NotFound }
 ];

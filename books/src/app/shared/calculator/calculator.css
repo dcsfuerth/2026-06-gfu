@@ -108,3 +108,13 @@
   font-weight: 700;
   color: #111827;
 }
+
+input.ng-invalid.ng-touched {
+  outline: none;
+  border-color: red;
+}
+
+input.ng-valid {
+  outline: none;
+  border-color: green;
+}
