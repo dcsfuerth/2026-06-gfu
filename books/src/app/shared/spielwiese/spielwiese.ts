@@ -1,20 +1,22 @@
 import { AsyncPipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ReplaySubject } from 'rxjs';
+import { ReplaySubject, Subscription, timer } from 'rxjs';
 @Component({
   selector: 'books-spielwiese',
   imports: [AsyncPipe, FormsModule],
   templateUrl: './spielwiese.html',
   styleUrl: './spielwiese.css',
 })
-export class Spielwiese {
+export class Spielwiese implements OnDestroy {
 
   protected mySubject$ = new ReplaySubject(5);
+  protected obs3$ = timer(0, 500); // läuft endlos
   nachrichtentext: string = '';
+  protected mySubscriptions: Subscription[] = [];
 
   constructor() {
-    // const obs3$ = timer(0, 500); // läuft endlos
+    this.mySubscriptions.push(this.obs3$.subscribe(console.log));
     // const obs4$ = obs3$.pipe(map(value => value * 2));
     // obs4$.subscribe(console.log);
 
@@ -34,9 +36,12 @@ export class Spielwiese {
     this.mySubject$.next('na klar1');
     this.mySubject$.next('na klar2');
     this.mySubject$.next('na klar3');
-    this.mySubject$.subscribe(e => console.log(e));
+    // this.mySubject$.subscribe(e => console.log(e));
 
 
+  }
+  ngOnDestroy(): void {
+    this.mySubscriptions.forEach((s) => s.unsubscribe());
   }
 
   nachricht(message: string) {
