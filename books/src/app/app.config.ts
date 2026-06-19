@@ -1,4 +1,5 @@
 import { registerLocaleData } from "@angular/common";
+import { provideHttpClient } from "@angular/common/http";
 import localeDe from "@angular/common/locales/de";
 import localeDeExtra from "@angular/common/locales/extra/de";
 import { ApplicationConfig, DEFAULT_CURRENCY_CODE, LOCALE_ID, importProvidersFrom, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
@@ -13,6 +14,7 @@ export const appConfig: ApplicationConfig = {
     { provide: LOCALE_ID, useValue: "de-DE" },
     { provide: DEFAULT_CURRENCY_CODE, useValue: "EUR" },
     provideBrowserGlobalErrorListeners(),
+    provideHttpClient(),
     provideRouter(routes), // , withHashLocation(), withDebugTracing()
     // provideZonelessChangeDetection(),
     importProvidersFrom(FormsModule)
