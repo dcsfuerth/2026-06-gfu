@@ -16,7 +16,7 @@ export class Spielwiese implements OnDestroy {
   protected mySubscriptions: Subscription[] = [];
 
   constructor() {
-    this.mySubscriptions.push(this.obs3$.subscribe(console.log));
+    // this.obs3$.subscribe(console.log);
     // const obs4$ = obs3$.pipe(map(value => value * 2));
     // obs4$.subscribe(console.log);
 
