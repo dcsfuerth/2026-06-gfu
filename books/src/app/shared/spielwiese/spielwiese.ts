@@ -41,7 +41,7 @@ export class Spielwiese implements OnDestroy {
 
   }
   ngOnDestroy(): void {
-    this.mySubscriptions.forEach((s) => s.unsubscribe());
+    // this.mySubscriptions.forEach((s) => s.unsubscribe());
   }
 
   nachricht(message: string) {
