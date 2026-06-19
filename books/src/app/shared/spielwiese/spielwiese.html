@@ -3,6 +3,10 @@
 Aktueller Zustand: {{ mySubject$ | async }}
 
 <p>
+    {{obs3$ | async}}
+</p>
+
+<p>
     <input type="text" [(ngModel)]="nachrichtentext">
     <button (click)="nachricht(nachrichtentext)">Senden</button>
 </p>
