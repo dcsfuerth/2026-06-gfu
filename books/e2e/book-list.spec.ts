@@ -21,7 +21,7 @@ test.describe('Buchliste', () => {
   });
 
   test('markiert günstige Bücher (< 20 €) mit der Rabatt-Klasse', async ({ page }) => {
-    const guenstig = page.locator('.price--discount');
+    const guenstig = page.locator('.price-discount');
     await expect(guenstig).toHaveCount(1);
     await expect(guenstig).toHaveText(/19,99/);
   });

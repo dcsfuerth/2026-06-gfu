@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Playwright-Konfiguration für die Bücherverwaltung (Angular 21).
+ * Playwright-Konfiguration
  *
  * - `testDir`   : Alle E2E-Tests liegen unter ./e2e
  * - `webServer` : Startet bei Bedarf `npm start` (ng serve) und wartet auf Port 4200.
