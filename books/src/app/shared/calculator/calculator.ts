@@ -12,6 +12,9 @@ export class Calculator {
   y: string = '';
   result: number = 0;
 
+  /**
+   * addiert zwei Inputwerte x und y (aus der Oberfläche) und schreibt das Ergebnis in das Resultfeld
+   */
   add() {
     this.result = (parseFloat(this.x) || 0) + (parseFloat(this.y) || 0);
   }
