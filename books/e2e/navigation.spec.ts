@@ -8,7 +8,7 @@ test.describe('App-Shell & Navigation', () => {
   });
 
   test('zeigt den Marken-Titel im Header', async ({ page }) => {
-    const brand = page.getByRole('link', { name: /Bücherverwaltung/ });
+    const brand = page.getByRole('banner').getByRole('link', { name: 'Bücherverwaltung' });
     await expect(brand).toBeVisible();
     await expect(brand).toHaveAttribute('href', '/');
   });
@@ -21,34 +21,39 @@ test.describe('App-Shell & Navigation', () => {
     await expect(nav.getByRole('link', { name: 'Spielwiese' })).toBeVisible();
   });
 
-  test('navigiert über die Links zu allen Routen', async ({ page }) => {
-    await page.getByRole('link', { name: 'Bücher', exact: true }).click();
+  test('navigiert über die Links zu allen Routen und setzt den Seitentitel', async ({ page }) => {
+    const nav = page.getByRole('navigation', { name: 'Hauptnavigation' });
+
+    await nav.getByRole('link', { name: 'Bücher', exact: true }).click();
     await expect(page).toHaveURL(/\/books$/);
     await expect(page.getByRole('heading', { name: 'Bücher' })).toBeVisible();
+    await expect(page).toHaveTitle('Bücher · Bücherverwaltung');
 
-    await page.getByRole('link', { name: 'Taschenrechner' }).click();
+    await nav.getByRole('link', { name: 'Taschenrechner' }).click();
     await expect(page).toHaveURL(/\/calculator$/);
     await expect(page.getByRole('heading', { name: 'Taschenrechner' })).toBeVisible();
 
-    await page.getByRole('link', { name: 'Spielwiese' }).click();
+    await nav.getByRole('link', { name: 'Spielwiese' }).click();
     await expect(page).toHaveURL(/\/spielwiese$/);
-    await expect(page.getByText('spielwiese works!')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Spielwiese' })).toBeVisible();
 
-    await page.getByRole('link', { name: 'Start', exact: true }).click();
+    await nav.getByRole('link', { name: 'Start', exact: true }).click();
     await expect(page).toHaveURL(/\/$/);
+    await expect(page).toHaveTitle('Start · Bücherverwaltung');
   });
 
-  test('markiert den aktiven Link mit der Active-Klasse', async ({ page }) => {
-    const buecherLink = page.getByRole('link', { name: 'Bücher', exact: true });
+  test('markiert den aktiven Link mit Active-Klasse und aria-current', async ({ page }) => {
+    const nav = page.getByRole('navigation', { name: 'Hauptnavigation' });
+    const buecherLink = nav.getByRole('link', { name: 'Bücher', exact: true });
     await buecherLink.click();
     await expect(buecherLink).toHaveClass(/nav__link--active/);
+    await expect(buecherLink).toHaveAttribute('aria-current', 'page');
+    await expect(nav.getByRole('link', { name: 'Start', exact: true })).not.toHaveClass(
+      /nav__link--active/,
+    );
   });
 
-  test('der "Subscription beenden"-Button ist bedienbar', async ({ page }) => {
-    const stopBtn = page.getByRole('button', { name: 'Subscription beenden' });
-    await expect(stopBtn).toBeVisible();
-    await stopBtn.click();
-    // Nach dem Beenden bleibt die App benutzbar (kein Absturz).
-    await expect(page.getByRole('link', { name: 'Bücher', exact: true })).toBeVisible();
+  test('zeigt die Angular-Version im Footer', async ({ page }) => {
+    await expect(page.getByRole('contentinfo')).toContainText(/Angular \d+\.\d+\.\d+/);
   });
 });

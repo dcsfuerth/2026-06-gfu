@@ -1,52 +1,22 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BookData } from '../bookdata/book-data';
-import { Book } from '../book';
 import { CurrencyPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { Rating } from '../../shared/rating/rating';
+import { BookData } from '../bookdata/book-data';
 
 @Component({
   selector: 'books-book-detail',
-  imports: [CurrencyPipe],
+  imports: [CurrencyPipe, RouterLink, Rating],
   templateUrl: './book-detail.html',
   styleUrl: './book-detail.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BookDetail implements OnInit {
+export class BookDetail {
+  private readonly bookData = inject(BookData);
 
-  protected book: Book | undefined;
-  protected readonly maxStars = Array.from({ length: 5 });
+  /** Wird vom Router aus dem Routen-Parameter `:isbn` gesetzt. */
+  readonly isbn = input.required<string>();
 
-  constructor(
-    private router: Router,
-    private bookDataService: BookData,
-    private cd: ChangeDetectorRef,
-    private route: ActivatedRoute) { }
-
-  async ngOnInit(): Promise<void> {
-
-    const isbn = this.route.snapshot.paramMap.get('isbn');
-
-    if (isbn) {
-      this.book = await this.bookDataService.getBook(isbn);
-    } else {
-      this.book = undefined;
-    }
-
-    this.cd.detectChanges();
-
-    // this.route.paramMap.subscribe(async params => {
-    //   const isbn = params.get('isbn');
-    //   if (isbn) {
-    //     this.book = await this.bookDataService.getBook(isbn);
-    //   } else {
-    //     this.book = undefined;
-    //   }
-    //   this.cd.markForCheck();
-    // }
-
-  }
-
-  goBack() {
-    this.router.navigate(['/books']);
-  }
-
+  /** Lädt das Buch und lädt automatisch neu, wenn sich die ISBN ändert. */
+  protected readonly bookResource = this.bookData.getBook(this.isbn);
 }

@@ -1,8 +1,8 @@
 export interface Book {
-    isbn: string;
-    title: string;
-    price: number;
-    coverUrl: string;
-    stars: number;
-    comment?: string;
+  readonly isbn: string;
+  readonly title: string;
+  readonly price: number;
+  readonly coverUrl: string;
+  readonly stars: number;
+  readonly comment?: string;
 }

@@ -1,62 +1,55 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
-export class RatingEvent {
-  constructor(public id: string, public operation: string) { }
-}
-
+/**
+ * Sternebewertung mit Teilsternen.
+ *
+ * `stars` ist ein reiner Input; Änderungen werden über `starsChange`
+ * gemeldet, der Aufrufer entscheidet, ob er sie übernimmt.
+ */
 @Component({
-  selector: 'rating',
+  selector: 'books-rating',
   templateUrl: './rating.html',
   styleUrl: './rating.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Rating implements OnChanges {
+export class Rating {
+  /** Aktuelle Bewertung, z. B. 3.5 */
+  readonly stars = input.required<number>();
 
-  /** Anzahl der anzuzeigenden Sterne. */
-  readonly maxStars = 5;
+  /** Anzahl der Sterne. */
+  readonly max = input(5);
 
-  @Input()
-  stars: number = 3.2;
+  /** Schrittweite der Plus-/Minus-Buttons. */
+  readonly step = input(0.1);
+
+  /** Blendet die Buttons aus. */
+  readonly readonly = input(false);
+
+  readonly starsChange = output<number>();
 
   /**
    * Füllgrad (0–100 %) je Stern, abgeleitet aus `stars`.
    * z. B. stars = 3.5 -> [100, 100, 100, 50, 0]
    */
-  get starFills(): number[] {
-    return Array.from({ length: this.maxStars }, (_, i) =>
-      Math.max(0, Math.min(1, this.stars - i)) * 100
-    );
+  protected readonly starFills = computed(() =>
+    Array.from({ length: this.max() }, (_, i) => Math.max(0, Math.min(1, this.stars() - i)) * 100),
+  );
+
+  protected readonly label = computed(() => `${this.stars()} von ${this.max()} Sternen`);
+
+  protected readonly canIncrease = computed(() => this.stars() < this.max());
+  protected readonly canDecrease = computed(() => this.stars() > 1);
+
+  increase(): void {
+    this.emitClamped(this.stars() + this.step());
   }
 
-  @Input()
-  id: string = ``;
-
-  @Output()
-  up: EventEmitter<string> = new EventEmitter<string>();
-
-  @Output()
-  down: EventEmitter<string> = new EventEmitter<string>();
-
-
-
-  @Output()
-  ratingChange: EventEmitter<RatingEvent> = new EventEmitter<RatingEvent>();
-
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log('Rating.ngOnChanges()', changes);
+  decrease(): void {
+    this.emitClamped(this.stars() - this.step());
   }
 
-  upvote() {
-    console.log(`Upvote für ${this.id}`);
-    this.up.emit(this.id);
-
-    // this.ratingChange.emit(new RatingEvent(this.id, 'upvote'));
+  private emitClamped(value: number): void {
+    const clamped = Math.min(this.max(), Math.max(1, value));
+    this.starsChange.emit(Math.round(clamped * 10) / 10);
   }
-
-  downvote() {
-    console.log(`Downvote für ${this.id}`);
-    this.down.emit(this.id);
-  }
-
-
-
 }

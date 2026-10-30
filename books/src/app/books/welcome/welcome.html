@@ -1,7 +1,23 @@
-<section class="welcome">
-  <span class="welcome__icon" aria-hidden="true">📚</span>
-  <h1 class="welcome__title">Willkommen in der Bücherverwaltung!</h1>
-  <p class="welcome__text">
-    Verwalte deine Bücher, durchsuche deine Sammlung und behalte den Überblick.
-  </p>
+<section class="page">
+  <div class="hero card">
+    <span class="eyebrow">Bücherverwaltung</span>
+    <h1 class="hero__title">Willkommen in der Bücherverwaltung!</h1>
+    <p class="hero__text">
+      Verwalte deine Bücher, durchsuche deine Sammlung und behalte den Überblick.
+    </p>
+    <div class="hero__actions">
+      <a class="btn btn--primary" routerLink="/books">Zu den Büchern</a>
+    </div>
+  </div>
+
+  <ul class="features">
+    @for (feature of features; track feature.path) {
+      <li>
+        <a class="feature card" [routerLink]="feature.path">
+          <h2 class="feature__title">{{ feature.title }}</h2>
+          <p class="feature__text">{{ feature.text }}</p>
+        </a>
+      </li>
+    }
+  </ul>
 </section>

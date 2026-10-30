@@ -1,52 +1,71 @@
-import { AsyncPipe } from '@angular/common';
-import { Component, OnDestroy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { ReplaySubject, Subscription, timer } from 'rxjs';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ReplaySubject, map, scan, timer } from 'rxjs';
+
+/**
+ * Spielwiese: RxJS-Streams und Signals nebeneinander.
+ *
+ * `toSignal()` übernimmt das Abonnieren und räumt beim Zerstören der
+ * Komponente automatisch auf. Ein manuelles `unsubscribe()` entfällt.
+ */
 @Component({
   selector: 'books-spielwiese',
-  imports: [AsyncPipe, FormsModule],
   templateUrl: './spielwiese.html',
   styleUrl: './spielwiese.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Spielwiese implements OnDestroy {
+export class Spielwiese {
+  // --- RxJS: timer() -> Signal -------------------------------------------
+  private readonly ticks$ = timer(0, 500);
+  protected readonly ticks = toSignal(this.ticks$, { initialValue: 0 });
 
-  protected mySubject$ = new ReplaySubject(5);
-  protected obs3$ = timer(0, 500); // läuft endlos
-  nachrichtentext: string = '';
-  protected mySubscriptions: Subscription[] = [];
+  // --- RxJS: ReplaySubject -> Signal ---------------------------------------
+  private readonly messages$ = new ReplaySubject<string>(5);
+  protected readonly lastMessage = toSignal(this.messages$);
+  protected readonly messageHistory = toSignal(
+    this.messages$.pipe(
+      scan((history, message) => [...history, message].slice(-5), [] as string[]),
+    ),
+    { initialValue: [] as string[] },
+  );
+  protected readonly messageCount = toSignal(this.messages$.pipe(map((_, index) => index + 1)), {
+    initialValue: 0,
+  });
+
+  protected readonly draft = signal('');
+  protected readonly canSend = computed(() => this.draft().trim().length > 0);
+
+  // --- Reine Signals ---------------------------------------------------------
+  protected readonly counter = signal(0);
+  protected readonly doubled = computed(() => this.counter() * 2);
+  protected readonly parity = computed(() => (this.counter() % 2 === 0 ? 'gerade' : 'ungerade'));
 
   constructor() {
-    // this.obs3$.subscribe(console.log);
-    // const obs4$ = obs3$.pipe(map(value => value * 2));
-    // obs4$.subscribe(console.log);
-
-    // this.mySubject.next('Hallo');
-    // this.mySubject.subscribe(value => console.log('Subscriber 1:', value));
-    // this.mySubject.next('Welt');
-    // this.mySubject.subscribe(value => console.log('Subscriber 2:', value));
-
-    // // Startwert muß angegeben werden
-    // this.mySubject$.subscribe(e => console.log(1, e));
-    // // next() überschreibt den Startwert
-    // this.mySubject$.next('ich glaube schon');
-    // this.mySubject$.subscribe(e => console.log(2, e));
-    // this.mySubject$.next('na klar');
-
-    this.mySubject$.next('ich glaube schon');
-    this.mySubject$.next('na klar1');
-    this.mySubject$.next('na klar2');
-    this.mySubject$.next('na klar3');
-    // this.mySubject$.subscribe(e => console.log(e));
-
-
-  }
-  ngOnDestroy(): void {
-    // this.mySubscriptions.forEach((s) => s.unsubscribe());
+    this.messages$.next('Hallo Spielwiese');
   }
 
-  nachricht(message: string) {
-    this.mySubject$.next(message);
+  updateDraft(value: string): void {
+    this.draft.set(value);
   }
 
+  send(): void {
+    const message = this.draft().trim();
+    if (!message) {
+      return;
+    }
+    this.messages$.next(message);
+    this.draft.set('');
+  }
 
+  increment(): void {
+    this.counter.update((value) => value + 1);
+  }
+
+  decrement(): void {
+    this.counter.update((value) => value - 1);
+  }
+
+  reset(): void {
+    this.counter.set(0);
+  }
 }

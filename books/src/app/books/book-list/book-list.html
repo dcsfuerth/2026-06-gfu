@@ -1,75 +1,121 @@
-@if (books && books.length > 0) {
-<div class="book-list">
-  <header class="book-list__header">
-    <h2 class="book-list__title">Bücher</h2>
-    <button type="button" class="btn btn--ghost" (click)="toggleCover()">
+<section class="page">
+  <header class="page__header">
+    <div>
+      <h1 class="page__title">Bücher</h1>
+      <p class="page__subtitle">
+        @if (booksResource.isLoading()) {
+          Bücher werden geladen …
+        } @else if (books().length > 0) {
+          {{ resultCount() }} von {{ books().length }} Büchern
+        } @else {
+          Deine Sammlung
+        }
+      </p>
+    </div>
+
+    <button type="button" class="btn" (click)="toggleCover()" [attr.aria-pressed]="coverVisible()">
       Cover ein/ausblenden
     </button>
   </header>
 
-  <div class="book-list__search">
-    <input type="text" class="book-list__search-input" placeholder="Bücher suchen..." aria-label="Bücher suchen"
-      [(ngModel)]="suchBegriff" />
-  </div>
-
-  <!-- {{books | json}} -->
-
-
-  @if (suchBegriff) {
-  <p class="book-list__hint">Gefiltert nach „{{ suchBegriff }}"</p>
-  }
-
-  <table class="book-table">
-    <thead>
-      <tr>
-        <th>ISBN</th>
-        <th>Titel</th>
-        <th>Preis</th>
-        <th>Bewertung</th>
-        @if (coverVisible) {
-        <th>Cover</th>
+  @if (booksResource.error()) {
+    <div class="notice notice--error" role="alert">
+      Die Bücher konnten nicht geladen werden.
+      <button type="button" class="btn btn--ghost" (click)="booksResource.reload()">
+        Erneut versuchen
+      </button>
+    </div>
+  } @else if (booksResource.isLoading()) {
+    <div class="notice" aria-busy="true">Bücher werden geladen …</div>
+  } @else if (books().length === 0) {
+    <div class="card card--padded notice">Leider noch keine Bücher vorhanden.</div>
+  } @else {
+    <div class="card">
+      <div class="toolbar">
+        <input
+          type="search"
+          class="input toolbar__search"
+          placeholder="Bücher suchen …"
+          aria-label="Bücher suchen"
+          autocomplete="off"
+          [value]="searchTerm()"
+          (input)="updateSearch($any($event.target).value)"
+        />
+        @if (searchTerm()) {
+          <p class="toolbar__hint muted">Gefiltert nach „{{ searchTerm() }}“</p>
         }
-        <th>Aktion</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (book of (books | bookFilter : suchBegriff); track book; let i = $index) {
-      <tr>
-        <td class="book-table__isbn">
+      </div>
 
-          <a [routerLink]="['/book', book.isbn]">{{ book.isbn }}</a>
-
-          <!-- {{ book.isbn }} -->
-        </td>
-
-
-
-        <td>{{ book.title }}</td>
-        <td>
-          <span class="price" [class.price-discount]="book.price < 20">
-            {{ book.price | currency: 'EUR' : 'symbol' : '1.2-2' }}
-          </span>
-        </td>
-        <td>
-          <rating [stars]="book.stars" [id]="book.isbn" (up)="upvote($event)" (down)="downvote($event)"></rating>
-        </td>
-        @if (coverVisible) {
-        <td>
-          <img class="book-table__cover" [src]="book.coverUrl" [alt]="book.title" />
-        </td>
-        }
-        <td>
-          <button type="button" class="btn btn--danger" (click)="deleteBook(book.isbn)">
-            Löschen
-          </button>
-        </td>
-      </tr>
+      @if (deleteError(); as message) {
+        <p class="notice notice--error" role="alert">{{ message }}</p>
       }
-    </tbody>
-  </table>
-</div>
-}
 
-@if (books.length === 0) {
-<div class="book-list book-list--empty">Leider noch keine Bücher vorhanden.</div>
-}
+      <div class="table-wrap">
+        <table class="book-table">
+          <thead>
+            <tr>
+              @if (coverVisible()) {
+                <th scope="col" class="book-table__cover-col">Cover</th>
+              }
+              <th scope="col">Titel</th>
+              <th scope="col">ISBN</th>
+              <th scope="col" class="book-table__num">Preis</th>
+              <th scope="col">Bewertung</th>
+              <th scope="col"><span class="visually-hidden">Aktion</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (book of filteredBooks(); track book.isbn) {
+              <tr>
+                @if (coverVisible()) {
+                  <td>
+                    <img
+                      class="book-table__cover"
+                      [src]="book.coverUrl"
+                      [alt]="'Cover von ' + book.title"
+                      width="40"
+                      height="60"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </td>
+                }
+                <td class="book-table__title">
+                  <a [routerLink]="['/book', book.isbn]">{{ book.title }}</a>
+                </td>
+                <td class="mono muted">{{ book.isbn }}</td>
+                <td class="book-table__num">
+                  <span class="price" [class.price--discount]="book.price < 20">
+                    {{ book.price | currency }}
+                  </span>
+                </td>
+                <td>
+                  <books-rating
+                    [stars]="book.stars"
+                    (starsChange)="updateStars(book.isbn, $event)"
+                  />
+                </td>
+                <td class="book-table__actions">
+                  <button
+                    type="button"
+                    class="btn btn--danger"
+                    [attr.aria-label]="'Buch „' + book.title + '“ löschen'"
+                    (click)="deleteBook(book)"
+                  >
+                    Löschen
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td class="book-table__empty muted" colspan="6">
+                  Keine Treffer für „{{ searchTerm() }}“.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</section>

@@ -10,9 +10,9 @@ test.describe('Buchliste', () => {
   });
 
   test('zeigt alle Bücher in der Tabelle', async ({ page }) => {
-    // getByText trifft den Zellentext (nicht das alt-Attribut des Covers)
-    await expect(page.getByText('Angular 21', { exact: true })).toBeVisible();
-    await expect(page.getByText('Angular 22', { exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Angular 21' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Angular 22' })).toBeVisible();
+    await expect(page.getByText('2 von 2 Büchern')).toBeVisible();
   });
 
   test('formatiert Preise im deutschen Währungsformat', async ({ page }) => {
@@ -21,22 +21,23 @@ test.describe('Buchliste', () => {
   });
 
   test('markiert günstige Bücher (< 20 €) mit der Rabatt-Klasse', async ({ page }) => {
-    const guenstig = page.locator('.price-discount');
+    const guenstig = page.locator('.price--discount');
     await expect(guenstig).toHaveCount(1);
     await expect(guenstig).toHaveText(/19,99/);
   });
 
-  test('verlinkt die ISBN auf die Detailseite', async ({ page }) => {
-    const link = page.getByRole('link', { name: '123-456-789' });
+  test('verlinkt den Titel auf die Detailseite', async ({ page }) => {
+    const link = page.getByRole('link', { name: 'Angular 21' });
     await expect(link).toHaveAttribute('href', '/book/123-456-789');
   });
 
   test.describe('Suche/Filter', () => {
     test('filtert die Liste nach Titel', async ({ page }) => {
       await page.getByLabel('Bücher suchen').fill('22');
-      await expect(page.getByText('Angular 22', { exact: true })).toBeVisible();
-      await expect(page.getByText('Angular 21', { exact: true })).toHaveCount(0);
-      await expect(page.getByText('Gefiltert nach „22"')).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Angular 22' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Angular 21' })).toHaveCount(0);
+      await expect(page.getByText('Gefiltert nach „22“')).toBeVisible();
+      await expect(page.getByText('1 von 2 Büchern')).toBeVisible();
     });
 
     test('ist case-insensitive', async ({ page }) => {
@@ -44,9 +45,10 @@ test.describe('Buchliste', () => {
       await expect(page.getByRole('row')).toHaveCount(3);
     });
 
-    test('zeigt bei fehlendem Treffer keine Datenzeilen', async ({ page }) => {
+    test('zeigt bei fehlendem Treffer einen Hinweis', async ({ page }) => {
       await page.getByLabel('Bücher suchen').fill('Vue');
-      await expect(page.getByRole('cell', { name: /Angular/ })).toHaveCount(0);
+      await expect(page.getByRole('link', { name: /Angular/ })).toHaveCount(0);
+      await expect(page.getByText('Keine Treffer für „Vue“.')).toBeVisible();
     });
   });
 
@@ -65,7 +67,7 @@ test.describe('Buchliste', () => {
   test.describe('Rating (Sternebewertung)', () => {
     test('erhöht die Bewertung beim Klick auf "Bewertung erhöhen"', async ({ page }) => {
       const ersteZeile = page.getByRole('row').nth(1);
-      const sterne = ersteZeile.getByLabel(/von 5 Sternen/);
+      const sterne = ersteZeile.getByRole('img', { name: /von 5 Sternen/ });
       await expect(sterne).toHaveAttribute('aria-label', '3.5 von 5 Sternen');
 
       await ersteZeile.getByRole('button', { name: 'Bewertung erhöhen' }).click();
@@ -74,7 +76,7 @@ test.describe('Buchliste', () => {
 
     test('verringert die Bewertung beim Klick auf "Bewertung verringern"', async ({ page }) => {
       const ersteZeile = page.getByRole('row').nth(1);
-      const sterne = ersteZeile.getByLabel(/von 5 Sternen/);
+      const sterne = ersteZeile.getByRole('img', { name: /von 5 Sternen/ });
 
       await ersteZeile.getByRole('button', { name: 'Bewertung verringern' }).click();
       await expect(sterne).toHaveAttribute('aria-label', '3.4 von 5 Sternen');
@@ -82,15 +84,17 @@ test.describe('Buchliste', () => {
   });
 
   test.describe('Löschen', () => {
-    test('protokolliert das Löschen (UI-Stub, entfernt keine Zeile)', async ({ page }) => {
-      const logs: string[] = [];
-      page.on('console', (msg) => logs.push(msg.text()));
+    test('löscht das Buch über das Backend und entfernt die Zeile', async ({ page }) => {
+      const deleteRequest = page.waitForRequest(
+        (req) => req.method() === 'DELETE' && req.url().endsWith('/books/123-456-789'),
+      );
 
-      await page.getByRole('row').nth(1).getByRole('button', { name: 'Löschen' }).click();
+      await page.getByRole('button', { name: 'Buch „Angular 21“ löschen' }).click();
 
-      await expect.poll(() => logs.some((l) => l.includes('Lösche Buch mit ISBN'))).toBe(true);
-      // Die Implementierung löscht (noch) nicht wirklich -> weiterhin 2 Datenzeilen
-      await expect(page.getByRole('row')).toHaveCount(3);
+      await deleteRequest;
+      await expect(page.getByRole('row')).toHaveCount(2);
+      await expect(page.getByRole('link', { name: 'Angular 21' })).toHaveCount(0);
+      await expect(page.getByText('1 von 1 Büchern')).toBeVisible();
     });
   });
 });

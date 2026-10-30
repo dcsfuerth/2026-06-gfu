@@ -1,12 +1,82 @@
-<p>spielwiese works!</p>
+<section class="page">
+  <header class="page__header">
+    <div>
+      <h1 class="page__title">Spielwiese</h1>
+      <p class="page__subtitle">RxJS-Streams und Signals im Zusammenspiel.</p>
+    </div>
+  </header>
 
-Aktueller Zustand: {{ mySubject$ | async }}
+  <div class="grid">
+    <article class="card card--padded demo">
+      <span class="eyebrow">RxJS · timer()</span>
+      <h2 class="demo__title">Laufender Zähler</h2>
+      <p class="demo__text muted">
+        <code>timer(0, 500)</code> wird per <code>toSignal()</code> zu einem Signal.
+      </p>
+      <p class="demo__value mono" data-testid="timer-value" aria-live="off">{{ ticks() }}</p>
+    </article>
 
-<p>
-    {{obs3$ | async}}
-</p>
+    <article class="card card--padded demo">
+      <span class="eyebrow">RxJS · ReplaySubject</span>
+      <h2 class="demo__title">Nachrichten</h2>
+      <p class="demo__text muted">
+        Jeder gesendete Text landet im Subject; die letzten fünf werden gepuffert.
+      </p>
 
-<p>
-    <input type="text" [(ngModel)]="nachrichtentext">
-    <button (click)="nachricht(nachrichtentext)">Senden</button>
-</p>
+      <form class="demo__form" (submit)="$event.preventDefault(); send()">
+        <label class="visually-hidden" for="message">Nachricht</label>
+        <input
+          id="message"
+          type="text"
+          class="input"
+          placeholder="Nachricht eingeben …"
+          autocomplete="off"
+          [value]="draft()"
+          (input)="updateDraft($any($event.target).value)"
+        />
+        <button type="submit" class="btn btn--primary" [disabled]="!canSend()">Senden</button>
+      </form>
+
+      <p class="demo__state">
+        Aktueller Zustand: <strong>{{ lastMessage() }}</strong>
+        <span class="badge">{{ messageCount() }}</span>
+      </p>
+
+      <ol class="demo__history" aria-label="Letzte Nachrichten">
+        @for (message of messageHistory(); track $index) {
+          <li>{{ message }}</li>
+        }
+      </ol>
+    </article>
+
+    <article class="card card--padded demo">
+      <span class="eyebrow">Signals · computed()</span>
+      <h2 class="demo__title">Zähler</h2>
+      <p class="demo__text muted">
+        Ein <code>signal()</code> mit zwei abgeleiteten <code>computed()</code>-Werten.
+      </p>
+
+      <div class="demo__counter">
+        <button type="button" class="btn" aria-label="Zähler verringern" (click)="decrement()">
+          −
+        </button>
+        <span class="demo__value mono" data-testid="counter-value">{{ counter() }}</span>
+        <button type="button" class="btn" aria-label="Zähler erhöhen" (click)="increment()">
+          +
+        </button>
+        <button type="button" class="btn btn--ghost" (click)="reset()">Zurücksetzen</button>
+      </div>
+
+      <dl class="demo__facts">
+        <div>
+          <dt>Verdoppelt</dt>
+          <dd class="mono">{{ doubled() }}</dd>
+        </div>
+        <div>
+          <dt>Parität</dt>
+          <dd>{{ parity() }}</dd>
+        </div>
+      </dl>
+    </article>
+  </div>
+</section>

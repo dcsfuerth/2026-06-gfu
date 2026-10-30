@@ -1,44 +1,36 @@
 <header class="nav">
   <div class="nav__inner">
     <a class="nav__brand" routerLink="/">
-      <span class="nav__brand-icon" aria-hidden="true">📚</span>
+      <svg class="nav__brand-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path
+          d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17.5a.5.5 0 0 1-.5.5H6.5A2.5 2.5 0 0 0 4 22V4.5Zm2.5-.5a.5.5 0 0 0-.5.5v12.76c.16-.04.33-.06.5-.06H18V4H6.5Z"
+        />
+      </svg>
       <span class="nav__brand-text">{{ title }}</span>
     </a>
 
     <nav class="nav__links" aria-label="Hauptnavigation">
-      <a
-        class="nav__link"
-        routerLink="/"
-        routerLinkActive="nav__link--active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        >Start</a
-      >
-      <a
-        class="nav__link"
-        [routerLink]="['/books']"
-        routerLinkActive="nav__link--active"
-        >Bücher</a
-      >
-      <a
-        class="nav__link"
-        [routerLink]="['/calculator']"
-        routerLinkActive="nav__link--active"
-        >Taschenrechner</a
-      >
-      <a
-        class="nav__link"
-        [routerLink]="['/spielwiese']"
-        routerLinkActive="nav__link--active"
-        >Spielwiese</a
-      >
+      @for (item of navItems; track item.path) {
+        <a
+          class="nav__link"
+          [routerLink]="item.path"
+          routerLinkActive="nav__link--active"
+          ariaCurrentWhenActive="page"
+          [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+          >{{ item.label }}</a
+        >
+      }
     </nav>
-
-    <button class="nav__stop btn btn--ghost" type="button" (click)="stop()">
-      Subscription beenden
-    </button>
   </div>
 </header>
 
 <main class="content">
   <router-outlet />
 </main>
+
+<footer class="footer">
+  <div class="footer__inner">
+    <span>{{ title }}</span>
+    <span class="footer__version">Angular {{ angularVersion }}</span>
+  </div>
+</footer>

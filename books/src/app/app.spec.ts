@@ -12,16 +12,15 @@ describe('App', () => {
 
   it('should create the app', () => {
     const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+    expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should render title', async () => {
+  it('should render title and navigation', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.nav__brand-text')?.textContent).toContain(
-      'Bücherverwaltung',
-    );
+
+    expect(compiled.querySelector('.nav__brand-text')?.textContent).toContain('Bücherverwaltung');
+    expect(compiled.querySelectorAll('.nav__link')).toHaveLength(4);
   });
 });

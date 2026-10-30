@@ -38,12 +38,12 @@ test.describe('Taschenrechner', () => {
     await expect(el.result).toHaveText('6');
   });
 
-  test('rechnet mit Dezimalwerten', async ({ page }) => {
+  test('rechnet mit Dezimalwerten und formatiert deutsch', async ({ page }) => {
     const el = elements(page);
     await el.x.fill('2.5');
-    await el.y.fill('1.5');
+    await el.y.fill('1.25');
     await el.add.click();
-    await expect(el.result).toHaveText('4');
+    await expect(el.result).toHaveText('3,75');
   });
 
   test('behandelt leere Felder als 0', async ({ page }) => {
@@ -52,6 +52,22 @@ test.describe('Taschenrechner', () => {
     // y bleibt leer
     await el.add.click();
     await expect(el.result).toHaveText('7');
+  });
+
+  test('Enter im Feld addiert', async ({ page }) => {
+    const el = elements(page);
+    await el.x.fill('1');
+    await el.y.fill('2');
+    await el.y.press('Enter');
+    await expect(el.result).toHaveText('3');
+  });
+
+  test('zeigt eine Pflichtfeld-Meldung nach Verlassen eines leeren Feldes', async ({ page }) => {
+    const el = elements(page);
+    await el.x.focus();
+    await el.y.focus();
+    await expect(page.getByText('Bitte einen Wert eingeben.')).toBeVisible();
+    await expect(el.x).toHaveClass(/input--invalid/);
   });
 
   test('C setzt Eingaben und Ergebnis zurück', async ({ page }) => {

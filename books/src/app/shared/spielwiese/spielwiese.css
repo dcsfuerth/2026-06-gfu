@@ -1,0 +1,90 @@
+:host {
+  display: block;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 1rem;
+}
+
+.demo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.demo__title {
+  font-size: 1.0625rem;
+}
+
+.demo__text {
+  font-size: 0.875rem;
+}
+
+.demo__text code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 0.0625rem 0.3125rem;
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-sm);
+}
+
+.demo__value {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.demo__form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.demo__state {
+  font-size: 0.9375rem;
+}
+
+.demo__state .badge {
+  margin-left: 0.5rem;
+}
+
+.demo__history {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.demo__counter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.demo__counter .demo__value {
+  min-width: 3rem;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.demo__facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin: 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.demo__facts dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.demo__facts dd {
+  margin: 0.125rem 0 0;
+}

@@ -1,74 +1,60 @@
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Rating, RatingEvent } from "../../shared/rating/rating";
+import { Rating } from '../../shared/rating/rating';
 import { Book } from '../book';
-import { BookFilterPipe } from "../book-filter-pipe";
 import { BookData } from '../bookdata/book-data';
 
-
 @Component({
-  selector: 'book-list',
-  imports: [FormsModule, CurrencyPipe, BookFilterPipe, Rating, RouterLink],
+  selector: 'books-book-list',
+  imports: [CurrencyPipe, Rating, RouterLink],
   templateUrl: './book-list.html',
   styleUrl: './book-list.css',
-  // encapsulation: ViewEncapsulation.None
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BookList implements OnInit, OnDestroy {
+export class BookList {
+  private readonly bookData = inject(BookData);
 
-  protected books: Book[] = [];
-  userName: string = 'Peter';
-  coverVisible: boolean = true;
-  suchBegriff: string = '';
+  /** Die Bücher vom Server, inkl. Lade- und Fehlerzustand. */
+  protected readonly booksResource = this.bookData.getBooks();
 
-  private cd: ChangeDetectorRef = inject(ChangeDetectorRef);
-  private bookDataService: BookData = inject(BookData);
+  protected readonly searchTerm = signal('');
+  protected readonly coverVisible = signal(true);
+  protected readonly deleteError = signal<string | null>(null);
 
-  async ngOnInit() {
-    this.books = await this.bookDataService.getBooks();
-    this.cd.markForCheck();
+  protected readonly books = computed(() => this.booksResource.value() ?? []);
+
+  /** Nach dem Suchbegriff gefilterte Liste (Titel, Groß-/Kleinschreibung egal). */
+  protected readonly filteredBooks = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    const books = this.books();
+    return term ? books.filter((book) => book.title.toLowerCase().includes(term)) : books;
+  });
+
+  protected readonly resultCount = computed(() => this.filteredBooks().length);
+
+  updateSearch(value: string): void {
+    this.searchTerm.set(value);
   }
 
-  ngOnDestroy() {
-    console.log('BookList.ngOnDestroy()');
+  toggleCover(): void {
+    this.coverVisible.update((visible) => !visible);
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    console.log('BookList.ngOnChanges()', changes);
+  /** Übernimmt eine geänderte Bewertung in die lokale Liste. */
+  updateStars(isbn: string, stars: number): void {
+    this.booksResource.value.update((books) =>
+      books?.map((book) => (book.isbn === isbn ? { ...book, stars } : book)),
+    );
   }
 
-  upvote(isbn: string) {
-    console.log(`BookList - Upvote für Buch mit ISBN ${isbn}`);
-    const book = this.books.find(book => book.isbn === isbn);
-    if (book) {
-      book.stars = +Math.min(5, book.stars + 0.1).toFixed(1);
+  async deleteBook(book: Book): Promise<void> {
+    this.deleteError.set(null);
+    try {
+      await this.bookData.deleteBook(book.isbn);
+      this.booksResource.value.update((books) => books?.filter((b) => b.isbn !== book.isbn));
+    } catch {
+      this.deleteError.set(`„${book.title}“ konnte nicht gelöscht werden.`);
     }
   }
-
-  downvote(isbn: string) {
-    console.log(`BookList - Downvote für Buch mit ISBN ${isbn}`);
-    const book = this.books.find(book => book.isbn === isbn);
-    if (book) {
-      book.stars = +Math.max(1, book.stars - 0.1).toFixed(1);
-    }
-  }
-
-  ratingChange(event: RatingEvent) {
-    if (event.operation === 'upvote') {
-      this.upvote(event.id);
-    } else if (event.operation === 'downvote') {
-      this.downvote(event.id);
-    }
-  }
-
-  deleteBook(isbn: string) {
-    // const booksJson = JSON.stringify(this.books);
-    console.log(`Lösche Buch mit ISBN ${isbn}`);
-  }
-
-  toggleCover() {
-    this.coverVisible = !this.coverVisible;
-  }
-
 }

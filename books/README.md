@@ -1,59 +1,65 @@
-# Books
+# Bücherverwaltung (books)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.15.
+Schulungsprojekt auf Basis von Angular 22: Standalone-Komponenten, Signals, `httpResource`,
+Signal Forms, Lazy Routing, zoneless Change Detection, Vitest und Playwright.
 
-## Development server
+## Voraussetzungen
 
-To start a local development server, run:
+- Node.js 24, npm 11
+- Für die Buchdaten ein lokaler [json-server](https://github.com/typicode/json-server) auf Port 3000
+  (siehe `npm run db:mock`)
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Entwicklung
 
 ```bash
-ng generate component component-name
+npm install
+npm run db:mock   # Mock-Backend auf http://localhost:3000 (json-server, Daten aus src/data/db.json)
+npm start         # Dev-Server auf http://localhost:4200
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Die Backend-URL steht in `src/environments/environment.development.ts` (Entwicklung) bzw.
+`src/environments/environment.ts` (Produktion).
 
-```bash
-ng generate --help
+## Skripte
+
+| Skript | Zweck |
+|--------|-------|
+| `npm start` | Dev-Server mit Live-Reload |
+| `npm run build` | Produktions-Build nach `dist/books` |
+| `npm test` | Unit-Tests mit Vitest |
+| `npm run e2e` | End-to-End-Tests mit Playwright (startet den Dev-Server bei Bedarf selbst, Backend wird gemockt) |
+| `npm run e2e:ui` | Playwright im UI-Modus |
+| `npm run e2e:report` | Letzten Playwright-Report öffnen |
+| `npm run db:mock` | json-server mit `src/data/db.json` starten |
+| `npm run docs` | Compodoc-Dokumentation erzeugen |
+
+## Struktur
+
+```
+src/app
+├── app.ts / app.html / app.css     App-Shell: Header, Navigation, Footer
+├── app.config.ts                   Provider (Locale, HttpClient mit fetch, Router mit Input-Binding)
+├── app.routes.ts                   Lazy geladene Routen mit Seitentiteln
+├── locale.ts                       Deutsche Locale + Euro als Standardwährung
+├── books/
+│   ├── book.ts                     Datenmodell
+│   ├── book-guard.ts               Route-Guard: ISBN-Format prüfen, sonst Umleitung
+│   ├── bookdata/book-data.ts       Datenzugriff über httpResource / HttpClient
+│   ├── book-list/                  Liste mit Suche, Cover-Toggle, Bewertung, Löschen
+│   ├── book-detail/                Detailseite, ISBN kommt als Router-Input
+│   └── welcome/                    Startseite
+└── shared/
+    ├── rating/                     Sternebewertung (input()/output())
+    ├── calculator/                 Taschenrechner mit Signal Forms
+    ├── spielwiese/                 RxJS-Streams und Signals (toSignal, computed)
+    └── not-found/                  404-Seite
 ```
 
-## Building
+Globale Design-Tokens und wiederverwendbare Bausteine (`.card`, `.btn`, `.input`, `.notice`, …)
+liegen in `src/styles.css`; Hell- und Dunkelmodus folgen der Systemeinstellung.
 
-To build the project run:
+## Weiterführend
 
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- [Angular-Dokumentation](https://angular.dev)
+- [Signals](https://angular.dev/guide/signals), [httpResource](https://angular.dev/guide/http/http-resource),
+  [Signal Forms](https://angular.dev/guide/forms/signals)

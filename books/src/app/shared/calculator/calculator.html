@@ -1,19 +1,57 @@
-<div class="calculator">
-  <h2 class="calculator__title">Taschenrechner</h2>
+<section class="page page--narrow">
+  <header class="page__header">
+    <div>
+      <h1 class="page__title">Taschenrechner</h1>
+      <p class="page__subtitle">Zwei Werte, eine Operation.</p>
+    </div>
+  </header>
 
-  <div class="calculator__inputs">
-    <input type="number" class="calculator__input" placeholder="Wert x" aria-label="Wert x" required [(ngModel)]="x" />
-    <input type="number" class="calculator__input" placeholder="Wert y" aria-label="Wert y" required [(ngModel)]="y" />
-  </div>
+  <form class="card card--padded calculator" novalidate (submit)="$event.preventDefault(); add()">
+    <div class="calculator__inputs">
+      @let x = calcForm.x();
+      <div class="field">
+        <label class="field__label" for="calc-x">Wert x</label>
+        <input
+          id="calc-x"
+          type="number"
+          class="input"
+          placeholder="0"
+          step="any"
+          [formField]="calcForm.x"
+          [class.input--invalid]="x.touched() && x.invalid()"
+        />
+        @if (x.touched() && x.invalid()) {
+          <p class="field__error">{{ x.errors()[0]?.message }}</p>
+        }
+      </div>
 
-  <div class="calculator__actions">
-    <button type="button" class="btn btn--primary" (click)="add()">+</button>
-    <button type="button" class="btn btn--primary" (click)="subtract()">−</button>
-    <button type="button" class="btn btn--ghost" (click)="clear()">C</button>
-  </div>
+      @let y = calcForm.y();
+      <div class="field">
+        <label class="field__label" for="calc-y">Wert y</label>
+        <input
+          id="calc-y"
+          type="number"
+          class="input"
+          placeholder="0"
+          step="any"
+          [formField]="calcForm.y"
+          [class.input--invalid]="y.touched() && y.invalid()"
+        />
+        @if (y.touched() && y.invalid()) {
+          <p class="field__error">{{ y.errors()[0]?.message }}</p>
+        }
+      </div>
+    </div>
 
-  <div class="calculator__result">
-    <span class="calculator__result-label">Ergebnis</span>
-    <span class="calculator__result-value">{{ result }}</span>
-  </div>
-</div>
+    <div class="calculator__actions">
+      <button type="submit" class="btn btn--primary" aria-label="+">+</button>
+      <button type="button" class="btn btn--primary" aria-label="−" (click)="subtract()">−</button>
+      <button type="button" class="btn" (click)="clear()">C</button>
+    </div>
+
+    <output class="calculator__result" for="calc-x calc-y" aria-live="polite">
+      <span class="calculator__result-label">Ergebnis</span>
+      <span class="calculator__result-value">{{ result() | number: '1.0-4' }}</span>
+    </output>
+  </form>
+</section>

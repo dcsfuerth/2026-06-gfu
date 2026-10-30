@@ -13,9 +13,8 @@ export interface Book {
 /**
  * Deterministische Testdaten. Bewusst so gewählt, dass die fachlichen
  * Sonderfälle der UI abgedeckt sind:
- *  - "Angular 21": Preis < 20 € -> CSS-Klasse `price--discount`
- *  - "Angular 22": Preis >= 20 € -> kein Rabatt
- *  - ISBN 123-456-789 ist die EINZIGE, die der bookGuard durchlässt.
+ *  - "Angular 21": Preis < 20 € -> CSS-Klasse `price--discount`, kein Kommentar
+ *  - "Angular 22": Preis >= 20 € -> kein Rabatt, mit Kommentar
  */
 export const MOCK_BOOKS: Book[] = [
   {
@@ -35,40 +34,59 @@ export const MOCK_BOOKS: Book[] = [
   },
 ];
 
+// Der json-server läuft auf einem anderen Port (3000) als die App (4200).
+// Beim Mocken müssen wir die CORS-Header selbst setzen, sonst blockt der
+// Browser die Cross-Origin-Antwort und HttpClient läuft in einen Fehler.
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': '*',
+};
+
 /**
  * Fängt alle Aufrufe an den json-server (Port 3000) ab und liefert die
  * Mock-Daten zurück. Dadurch sind die Tests unabhängig vom Backend.
  *
+ * Die Routes werden bewusst auf den Backend-Origin (Port 3000) eingeschränkt.
+ * Ein zu breites Pattern wie '**\/books' würde auch den Navigations-Request
+ * auf die Angular-Route http://localhost:4200/books abfangen.
+ *
  * Cover-Bilder werden ebenfalls geblockt (leeres 1x1-Pixel), damit keine
  * echten Netzwerk-Requests nach außen gehen.
  */
-// Der json-server läuft auf einem anderen Port (3000) als die App (4200).
-// Beim Mocken müssen wir die CORS-Header selbst setzen, sonst blockt der
-// Browser die Cross-Origin-Antwort und HttpClient läuft in einen Fehler.
-const CORS = { 'Access-Control-Allow-Origin': '*' };
-
 export async function mockBookApi(page: Page, books: Book[] = MOCK_BOOKS): Promise<void> {
-  // WICHTIG: Die Routes werden bewusst auf den Backend-Origin (Port 3000)
-  // eingeschränkt. Ein zu breites Pattern wie '**/books' würde auch den
-  // Navigations-Request auf die Angular-Route http://localhost:4200/books
-  // abfangen und die App damit aushebeln.
   const API = 'http://localhost:3000';
+  // Eigene Kopie, damit DELETE den Zustand innerhalb eines Tests verändern kann.
+  const state = books.map((book) => ({ ...book }));
 
-  // GET /books/:isbn  – Einzelbuch (muss vor der Listen-Route registriert sein)
+  // /books/:isbn – Einzelbuch (GET) und Löschen (DELETE); muss vor der Listen-Route stehen
   await page.route(`${API}/books/*`, async (route) => {
-    const url = new URL(route.request().url());
-    const isbn = url.pathname.split('/').pop();
-    const book = books.find((b) => b.isbn === isbn);
-    if (book) {
-      await route.fulfill({ json: book, headers: CORS });
-    } else {
-      await route.fulfill({ status: 404, json: {}, headers: CORS });
+    const request = route.request();
+    if (request.method() === 'OPTIONS') {
+      await route.fulfill({ status: 204, headers: CORS });
+      return;
     }
+
+    const isbn = decodeURIComponent(new URL(request.url()).pathname.split('/').pop() ?? '');
+    const index = state.findIndex((b) => b.isbn === isbn);
+
+    if (index === -1) {
+      await route.fulfill({ status: 404, json: {}, headers: CORS });
+      return;
+    }
+
+    if (request.method() === 'DELETE') {
+      state.splice(index, 1);
+      await route.fulfill({ status: 200, json: {}, headers: CORS });
+      return;
+    }
+
+    await route.fulfill({ json: state[index], headers: CORS });
   });
 
   // GET /books – Buchliste
   await page.route(`${API}/books`, async (route) => {
-    await route.fulfill({ json: books, headers: CORS });
+    await route.fulfill({ json: state, headers: CORS });
   });
 
   // Externe Cover-Bilder neutralisieren
