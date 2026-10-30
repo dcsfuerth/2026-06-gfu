@@ -1,0 +1,62 @@
+<header class="log__header">
+  <div>
+    <span class="eyebrow">Protokoll</span>
+    <h2 class="panel__title">Letzte Einträge</h2>
+  </div>
+  <div class="log__tools">
+    <label class="field__label" for="log-filter-level">Ab Level</label>
+    <select
+      id="log-filter-level"
+      class="input log__select"
+      #levelFilter
+      [value]="filterLevel()"
+      (change)="updateFilterLevel(levelFilter.value)"
+    >
+      @for (level of levels; track level) {
+        <option [value]="level">{{ level }}</option>
+      }
+    </select>
+    <input
+      type="search"
+      class="input log__search"
+      placeholder="Kontext oder Text …"
+      aria-label="Protokoll durchsuchen"
+      #search
+      [value]="filterText()"
+      (input)="updateFilterText(search.value)"
+    />
+    <button type="button" class="btn" (click)="download()">Herunterladen</button>
+    <button type="button" class="btn btn--ghost" (click)="clear()">Leeren</button>
+  </div>
+</header>
+
+<p class="log__count muted">{{ entries().length }} von {{ totalCount() }} Einträgen</p>
+
+<div class="table-wrap">
+  <table class="log-table">
+    <thead>
+      <tr>
+        <th scope="col">Zeit</th>
+        <th scope="col">Level</th>
+        <th scope="col">Kontext</th>
+        <th scope="col">Meldung</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (entry of entries(); track entry.id) {
+        <tr [class]="'log-row log-row--' + entry.level">
+          <td class="mono">{{ entry.timestamp | date: 'HH:mm:ss.SSS' }}</td>
+          <td>
+            <span class="level mono">{{ entry.level }}</span>
+          </td>
+          <td class="mono">{{ entry.context }}</td>
+          <td>{{ entry.message }}</td>
+        </tr>
+      } @empty {
+        <tr>
+          <td class="log-table__empty muted" colspan="4">Keine Einträge.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

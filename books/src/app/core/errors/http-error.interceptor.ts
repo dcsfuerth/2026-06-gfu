@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { TimeoutError, retry, throwError, timeout, timer } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Logger } from '../logging';
-import { AppError } from './app-error';
+import { AppError } from './app.error';
 
 /** Zeitlimit je Versuch in Millisekunden; pro Request über `HttpContext` überschreibbar. */
 export const REQUEST_TIMEOUT = new HttpContextToken<number>(() => 10_000);

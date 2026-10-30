@@ -41,20 +41,22 @@ Die Backend-URL steht in `src/environments/environment.development.ts` (Entwickl
 
 ```
 src/app
-├── app.ts / app.html / app.css     App-Shell: Header, Navigation, Footer
-├── app.config.ts                   Provider (Locale, HttpClient mit fetch, Router mit Input-Binding)
+├── app.component.ts/.html/.css     App-Shell: Header, Navigation, Footer
+├── app.config.ts                   Provider (Locale, Logging, ErrorHandler, HttpClient, Router)
 ├── app.routes.ts                   Lazy geladene Routen mit Seitentiteln
-├── locale.ts                       Deutsche Locale + Euro als Standardwährung
+├── locale.providers.ts             Deutsche Locale + Euro als Standardwährung
 ├── core/
-│   ├── logging/                    Logger mit Leveln, Kontext und Senken (Konsole, Ringpuffer)
-│   ├── errors/                     AppError, globaler ErrorHandler, HTTP-Interceptoren
-│   ├── notifications/              Toast-Meldungen (Signal-basiert)
-│   └── router/                     Navigations-Protokollierung
-├── diagnostics/                    Diagnose-Seite (/diagnose)
+│   ├── logging/                    logger.service, *.sink, logging.config/.providers
+│   ├── errors/                     app.error, global-error.handler, *.interceptor
+│   ├── notifications/              notifications.service, toasts.component
+│   └── router/                     router-logging.providers
+├── diagnostics/                    Diagnose-Seite (/diagnose): diagnostics.component ordnet die
+│                                   Panels an (environment-info, log-level-switch, health-check,
+│                                   error-triggers, profiling-toggle, log-viewer)
 ├── books/
-│   ├── book.ts                     Datenmodell
-│   ├── book-guard.ts               Route-Guard: ISBN-Format prüfen, sonst Umleitung
-│   ├── bookdata/book-data.ts       Datenzugriff über httpResource / HttpClient
+│   ├── book.model.ts               Datenmodell
+│   ├── book.guard.ts               Route-Guard: ISBN-Format prüfen, sonst Umleitung
+│   ├── bookdata/book-data.service.ts  Datenzugriff über httpResource / HttpClient
 │   ├── book-list/                  Liste mit Suche, Cover-Toggle, Bewertung, Löschen
 │   ├── book-detail/                Detailseite, ISBN kommt als Router-Input
 │   └── welcome/                    Startseite
@@ -64,6 +66,10 @@ src/app
     ├── spielwiese/                 RxJS-Streams und Signals (toSignal, computed)
     └── not-found/                  404-Seite
 ```
+
+Dateinamen folgen dem Muster `name.typ.ts` (`*.component.ts`, `*.service.ts`, `*.guard.ts`,
+`*.interceptor.ts`, `*.model.ts`, `*.providers.ts`); die Klassennamen tragen kein Suffix. Die
+CLI-Schematics in `angular.json` sind entsprechend eingestellt, `ng generate` erzeugt also passende Namen.
 
 ### End-to-End-Tests mit Gherkin
 
@@ -90,11 +96,12 @@ Die Anwendung zeigt bewusst, welche Mittel zur Diagnose in einer Angular-Anwendu
 und Services holen sich einen Kontext-Logger: `inject(Logger).withContext('BookList')`. Einträge gehen an
 alle Senken, die über das Multi-Provider-Token `LOG_SINK` registriert sind: die Konsole (einzige Stelle mit
 `console.*`, per ESLint-Regel abgesichert) und ein Ringpuffer im Speicher (`MemorySink`, 200 Einträge). Das
-Start-Level kommt aus `environment.logLevel`, kann auf der Diagnose-Seite umgeschaltet werden und wird im
-`localStorage` gemerkt. Der Router protokolliert Start, Ende, Abbruch und Dauer jeder Navigation.
+Start-Level wird in `app.config.ts` per `provideLogging({ level: environment.logLevel })` gesetzt, kann auf
+der Diagnose-Seite umgeschaltet werden und wird im `localStorage` gemerkt. Der Router protokolliert Start, Ende, Abbruch und Dauer jeder Navigation.
 
 **HTTP.** Zwei Interceptoren (`src/app/core/errors`): `httpLoggingInterceptor` setzt eine Korrelations-ID
-(`X-Request-Id`) und protokolliert Status und Dauer. `httpErrorInterceptor` setzt ein Zeitlimit je Versuch
+(`X-Request-Id`, UUID oder außerhalb eines Secure Context eine einfache Zufallskennung) und protokolliert
+Status und Dauer. `httpErrorInterceptor` setzt ein Zeitlimit je Versuch
 (`REQUEST_TIMEOUT`, Standard 10 s), wiederholt GET-Requests bei Netzwerk-, Timeout- und 5xx-Fehlern mit
 Backoff und übersetzt alle Fehler in `AppError` mit verständlicher Meldung (`offline`, `timeout`, `not-found`,
 `client`, `server`, `unknown`). Beides ist pro Request über `HttpContext` steuerbar.

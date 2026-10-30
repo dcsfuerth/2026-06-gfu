@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import type { Book } from '../../src/app/books/book';
+import type { Book } from '../../src/app/books/book.model';
 
 export type { Book };
 

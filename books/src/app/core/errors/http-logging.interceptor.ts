@@ -2,7 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn, HttpResponse } from '@angular/com
 import { inject } from '@angular/core';
 import { tap } from 'rxjs';
 import { Logger } from '../logging';
-import { AppError } from './app-error';
+import { AppError } from './app.error';
 
 /** Header, über den sich ein Request im Server-Protokoll wiederfinden lässt. */
 export const REQUEST_ID_HEADER = 'X-Request-Id';
@@ -14,7 +14,7 @@ export const REQUEST_ID_HEADER = 'X-Request-Id';
  */
 export const httpLoggingInterceptor: HttpInterceptorFn = (req, next) => {
   const log = inject(Logger).withContext('Http');
-  const requestId = crypto.randomUUID();
+  const requestId = createRequestId();
   const started = performance.now();
   const label = `${req.method} ${req.urlWithParams}`;
 
@@ -38,6 +38,19 @@ export const httpLoggingInterceptor: HttpInterceptorFn = (req, next) => {
     }),
   );
 };
+
+/**
+ * `crypto.randomUUID()` steht nur im Secure Context zur Verfügung (https oder
+ * localhost). Wird die App per http ausgeliefert, genügt eine Kennung aus
+ * Zeitstempel und Zufallszahl; sie muss nur je Sitzung eindeutig sein.
+ */
+function createRequestId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  const random = Math.random().toString(36).slice(2, 10).padEnd(8, '0');
+  return `${Date.now().toString(36)}-${random}`;
+}
 
 function elapsed(started: number): number {
   return Math.round(performance.now() - started);

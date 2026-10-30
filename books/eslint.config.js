@@ -47,7 +47,7 @@ module.exports = defineConfig([
   },
   {
     // Vor dem Bootstrap gibt es noch keinen Logger.
-    files: ['src/app/core/logging/console-sink.ts', 'src/main.ts'],
+    files: ['src/app/core/logging/console.sink.ts', 'src/main.ts'],
     rules: {
       'no-console': 'off',
     },

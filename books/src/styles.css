@@ -139,6 +139,27 @@ a:hover {
   padding: 1.5rem;
 }
 
+/* Panel: Karte mit Eyebrow, Titel, Text und Aktionen (z. B. Diagnose-Seite) */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.panel__title {
+  font-size: 1.0625rem;
+}
+
+.panel__text {
+  font-size: 0.875rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .page {
   display: flex;
   flex-direction: column;
@@ -364,6 +385,11 @@ a:hover {
 .badge--success {
   background: var(--color-success-soft);
   color: var(--color-success);
+}
+
+.badge--danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
 }
 
 /* ---------------------------------------------------------------------------

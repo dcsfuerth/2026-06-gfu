@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { bookGuard } from './books/book-guard';
+import { bookGuard } from './books/book.guard';
 
 /**
  * Alle Feature-Routen werden lazy geladen. Der Router lädt die jeweilige
@@ -10,37 +10,40 @@ export const routes: Routes = [
     path: '',
     pathMatch: 'full',
     title: 'Start · Bücherverwaltung',
-    loadComponent: () => import('./books/welcome/welcome').then((m) => m.Welcome),
+    loadComponent: () => import('./books/welcome/welcome.component').then((m) => m.Welcome),
   },
   {
     path: 'books',
     title: 'Bücher · Bücherverwaltung',
-    loadComponent: () => import('./books/book-list/book-list').then((m) => m.BookList),
+    loadComponent: () => import('./books/book-list/book-list.component').then((m) => m.BookList),
   },
   {
     path: 'book/:isbn',
     title: 'Buchdetails · Bücherverwaltung',
     canActivate: [bookGuard],
-    loadComponent: () => import('./books/book-detail/book-detail').then((m) => m.BookDetail),
+    loadComponent: () =>
+      import('./books/book-detail/book-detail.component').then((m) => m.BookDetail),
   },
   {
     path: 'calculator',
     title: 'Taschenrechner · Bücherverwaltung',
-    loadComponent: () => import('./shared/calculator/calculator').then((m) => m.Calculator),
+    loadComponent: () =>
+      import('./shared/calculator/calculator.component').then((m) => m.Calculator),
   },
   {
     path: 'spielwiese',
     title: 'Spielwiese · Bücherverwaltung',
-    loadComponent: () => import('./shared/spielwiese/spielwiese').then((m) => m.Spielwiese),
+    loadComponent: () =>
+      import('./shared/spielwiese/spielwiese.component').then((m) => m.Spielwiese),
   },
   {
     path: 'diagnose',
     title: 'Diagnose · Bücherverwaltung',
-    loadComponent: () => import('./diagnostics/diagnostics').then((m) => m.Diagnostics),
+    loadComponent: () => import('./diagnostics/diagnostics.component').then((m) => m.Diagnostics),
   },
   {
     path: '**',
     title: 'Seite nicht gefunden · Bücherverwaltung',
-    loadComponent: () => import('./shared/not-found/not-found').then((m) => m.NotFound),
+    loadComponent: () => import('./shared/not-found/not-found.component').then((m) => m.NotFound),
   },
 ];

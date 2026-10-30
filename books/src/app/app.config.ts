@@ -22,9 +22,9 @@ import {
   httpLoggingInterceptor,
 } from './core/errors';
 import { Logger, provideLogging } from './core/logging';
-import { Notifications } from './core/notifications/notifications';
-import { provideRouterLogging } from './core/router/provide-router-logging';
-import { provideGermanLocale } from './locale';
+import { Notifications } from './core/notifications/notifications.service';
+import { provideRouterLogging } from './core/router/router-logging.providers';
+import { provideGermanLocale } from './locale.providers';
 
 const routerFeatures: RouterFeatures[] = [
   // Routen-Parameter (z. B. :isbn) werden direkt an gleichnamige Komponenten-Inputs gebunden.
@@ -46,7 +46,7 @@ if (environment.routerDebugTracing) {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideGermanLocale(),
-    provideLogging(),
+    provideLogging({ level: environment.logLevel }),
     provideBrowserGlobalErrorListeners(),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
     provideHttpClient(
