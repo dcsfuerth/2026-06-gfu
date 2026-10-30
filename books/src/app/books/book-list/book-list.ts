@@ -10,6 +10,9 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AppError } from '../../core/errors';
+import { Logger } from '../../core/logging';
+import { Notifications } from '../../core/notifications/notifications';
 import { Rating } from '../../shared/rating/rating';
 import { Book, isDiscounted } from '../book';
 import { BookData } from '../bookdata/book-data';
@@ -26,6 +29,8 @@ const BASE_COLUMN_COUNT = 5;
 })
 export class BookList {
   private readonly bookData = inject(BookData);
+  private readonly notifications = inject(Notifications);
+  private readonly log = inject(Logger).withContext('BookList');
 
   /** Die Bücher vom Server, inkl. Lade- und Fehlerzustand. */
   protected readonly booksResource = this.bookData.getBooks();
@@ -56,6 +61,12 @@ export class BookList {
   });
 
   protected readonly resultCount = computed(() => this.filteredBooks().length);
+
+  /** Verständliche Meldung, falls das Laden fehlschlägt. */
+  protected readonly loadErrorMessage = computed(() => {
+    const error = this.booksResource.error();
+    return error instanceof AppError ? error.message : 'Unbekannter Fehler.';
+  });
 
   /** Anzahl der sichtbaren Spalten, z. B. für `colspan` der Hinweiszeile. */
   protected readonly columnCount = computed(
@@ -99,7 +110,9 @@ export class BookList {
     this.patchBook(book.isbn, { stars });
     try {
       await this.bookData.updateStars(book.isbn, stars);
-    } catch {
+      this.log.debug(`Bewertung für ${book.isbn} auf ${stars} gespeichert`);
+    } catch (error) {
+      this.log.error(`Bewertung für ${book.isbn} konnte nicht gespeichert werden`, error);
       this.patchBook(book.isbn, { stars: book.stars });
       this.actionError.set(`Die Bewertung von „${book.title}“ konnte nicht gespeichert werden.`);
     }
@@ -125,7 +138,10 @@ export class BookList {
     try {
       await this.bookData.deleteBook(book.isbn);
       this.booksResource.value.update((books) => books?.filter((b) => b.isbn !== book.isbn));
-    } catch {
+      this.log.info(`Buch ${book.isbn} gelöscht`);
+      this.notifications.success(`„${book.title}“ wurde gelöscht.`);
+    } catch (error) {
+      this.log.error(`Löschen von ${book.isbn} fehlgeschlagen`, error);
       this.actionError.set(`„${book.title}“ konnte nicht gelöscht werden.`);
     }
   }

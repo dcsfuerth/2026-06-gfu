@@ -52,3 +52,9 @@ Thumbs.db
 
 # playwright-bdd (generierte Tests)
 /.features-gen
+
+# Compodoc output
+/docs
+
+# Compodoc / Coverage / Bundle-Analyse
+/documentation

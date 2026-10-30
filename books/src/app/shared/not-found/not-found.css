@@ -15,7 +15,7 @@
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.1em;
-  color: var(--color-text-faint);
+  color: var(--color-text-muted);
 }
 
 .not-found .btn {

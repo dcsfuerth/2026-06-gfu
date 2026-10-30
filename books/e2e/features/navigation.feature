@@ -19,6 +19,7 @@ Funktionalität: App-Shell und Navigation
       | Bücher         |
       | Taschenrechner |
       | Spielwiese     |
+      | Diagnose       |
 
   Szenario: Über das Menü erreiche ich alle Bereiche
     Wenn ich im Hauptmenü auf "Bücher" klicke
@@ -42,3 +43,6 @@ Funktionalität: App-Shell und Navigation
 
   Szenario: Der Footer nennt die Angular-Version
     Dann zeigt der Footer die Angular-Version
+
+  Szenario: Die Startseite ist barrierefrei
+    Dann ist die Seite barrierefrei

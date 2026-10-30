@@ -21,6 +21,6 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
     expect(compiled.querySelector('.nav__brand-text')?.textContent).toContain('Bücherverwaltung');
-    expect(compiled.querySelectorAll('.nav__link')).toHaveLength(4);
+    expect(compiled.querySelectorAll('.nav__link')).toHaveLength(5);
   });
 });

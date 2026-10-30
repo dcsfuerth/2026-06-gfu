@@ -20,7 +20,7 @@
 
   @if (booksResource.error()) {
     <div class="notice notice--error" role="alert">
-      Die Bücher konnten nicht geladen werden.
+      Die Bücher konnten nicht geladen werden. {{ loadErrorMessage() }}
       <button type="button" class="btn btn--ghost" (click)="booksResource.reload()">
         Erneut versuchen
       </button>

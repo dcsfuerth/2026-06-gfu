@@ -32,3 +32,6 @@ Funktionalität: Spielwiese für RxJS und Signals
     Wenn ich auf den Button "Zurücksetzen" klicke
     Dann steht der Signal-Zähler auf "0"
     Und lautet die Parität "gerade"
+
+  Szenario: Die Spielwiese ist barrierefrei
+    Dann ist die Seite barrierefrei

@@ -49,3 +49,6 @@ Funktionalität: Taschenrechner
     Dann zeigt der Rechner das Ergebnis "0"
     Und ist das Feld "Wert x" leer
     Und ist das Feld "Wert y" leer
+
+  Szenario: Der Taschenrechner ist barrierefrei
+    Dann ist die Seite barrierefrei

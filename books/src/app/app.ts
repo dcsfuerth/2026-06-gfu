@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, VERSION } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Toasts } from './core/notifications/toasts';
 
 interface NavItem {
   readonly path: string;
@@ -9,7 +10,7 @@ interface NavItem {
 
 @Component({
   selector: 'books-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Toasts],
   templateUrl: './app.html',
   styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,5 +24,6 @@ export class App {
     { path: '/books', label: 'Bücher' },
     { path: '/calculator', label: 'Taschenrechner' },
     { path: '/spielwiese', label: 'Spielwiese' },
+    { path: '/diagnose', label: 'Diagnose' },
   ];
 }

@@ -78,7 +78,7 @@
     </div>
   } @else {
     <div class="notice notice--error" role="alert">
-      Das Buch konnte nicht geladen werden.
+      Das Buch konnte nicht geladen werden. {{ loadErrorMessage() }}
       <button type="button" class="btn btn--ghost" (click)="bookResource.reload()">
         Erneut versuchen
       </button>

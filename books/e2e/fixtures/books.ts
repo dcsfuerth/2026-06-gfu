@@ -33,7 +33,7 @@ export const MOCK_BOOKS: Book[] = [
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, PATCH, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': '*',
+  'Access-Control-Allow-Headers': 'X-Request-Id, Content-Type',
 };
 
 /**
@@ -85,8 +85,12 @@ export async function mockBookApi(page: Page, books: Book[] = MOCK_BOOKS): Promi
     await route.fulfill({ json: state[index], headers: CORS });
   });
 
-  // GET /books – Buchliste
+  // GET /books – Buchliste (OPTIONS: CORS-Preflight wegen X-Request-Id-Header)
   await page.route(`${API}/books`, async (route) => {
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({ status: 204, headers: CORS });
+      return;
+    }
     await route.fulfill({ json: state, headers: CORS });
   });
 

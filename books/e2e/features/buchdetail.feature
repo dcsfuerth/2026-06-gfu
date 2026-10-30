@@ -44,3 +44,8 @@ Funktionalität: Buchdetails und Route-Guard
     Und sehe ich die Überschrift "Angular 21"
     Wenn ich auf den Link "Zurück zur Liste" klicke
     Dann endet die URL mit "/books"
+
+  Szenario: Die Detailseite ist barrierefrei
+    Angenommen ich öffne die Seite "/book/987-654-321"
+    Dann sehe ich die Überschrift "Angular 22"
+    Und ist die Seite barrierefrei

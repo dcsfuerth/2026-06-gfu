@@ -34,6 +34,11 @@ export const routes: Routes = [
     loadComponent: () => import('./shared/spielwiese/spielwiese').then((m) => m.Spielwiese),
   },
   {
+    path: 'diagnose',
+    title: 'Diagnose · Bücherverwaltung',
+    loadComponent: () => import('./diagnostics/diagnostics').then((m) => m.Diagnostics),
+  },
+  {
     path: '**',
     title: 'Seite nicht gefunden · Bücherverwaltung',
     loadComponent: () => import('./shared/not-found/not-found').then((m) => m.NotFound),
