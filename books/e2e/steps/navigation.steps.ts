@@ -1,19 +1,19 @@
-import { expect } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
+import type { DataTable } from 'playwright-bdd';
 import { Then } from './fixtures';
 
-const mainNav = (page: import('@playwright/test').Page) =>
-  page.getByRole('navigation', { name: 'Hauptnavigation' });
+const mainNav = (page: Page) => page.getByRole('navigation', { name: 'Hauptnavigation' });
 
 Then(
   'zeigt der Header den Markennamen {string} mit Link zur Startseite',
-  async ({ page }, name) => {
+  async ({ page }, name: string) => {
     const brand = page.getByRole('banner').getByRole('link', { name });
     await expect(brand).toBeVisible();
     await expect(brand).toHaveAttribute('href', '/');
   },
 );
 
-Then('enthält das Hauptmenü die Einträge:', async ({ page }, table) => {
+Then('enthält das Hauptmenü die Einträge:', async ({ page }, table: DataTable) => {
   const expected = table.raw().flat();
   const links = mainNav(page).getByRole('link');
   await expect(links).toHaveText(expected);

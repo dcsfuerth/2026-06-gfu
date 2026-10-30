@@ -68,3 +68,8 @@ Funktionalität: Buchliste
     Und sehe ich 1 Bücher in der Tabelle
     Und sehe ich das Buch "Angular 21" nicht in der Tabelle
     Und sehe ich den Text "1 von 1 Büchern"
+
+  Szenario: Das Löschen lässt sich abbrechen
+    Wenn ich das Löschen von "Angular 21" abbreche
+    Dann sehe ich 2 Bücher in der Tabelle
+    Und sehe ich das Buch "Angular 21" in der Tabelle

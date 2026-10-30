@@ -3,15 +3,11 @@
     @for (fill of starFills(); track $index) {
       <span class="rating__star" aria-hidden="true">
         <svg class="rating__star-icon" viewBox="0 0 24 24" focusable="false">
-          <path
-            d="M12 2l2.9 6.26 6.87.6-5.2 4.52 1.56 6.72L12 17.27 5.87 20.1l1.56-6.72-5.2-4.52 6.87-.6L12 2z"
-          />
+          <path [attr.d]="starPath" />
         </svg>
         <span class="rating__star-fill" [style.width.%]="fill">
           <svg class="rating__star-icon" viewBox="0 0 24 24" focusable="false">
-            <path
-              d="M12 2l2.9 6.26 6.87.6-5.2 4.52 1.56 6.72L12 17.27 5.87 20.1l1.56-6.72-5.2-4.52 6.87-.6L12 2z"
-            />
+            <path [attr.d]="starPath" />
           </svg>
         </span>
       </span>

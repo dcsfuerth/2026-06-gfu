@@ -31,8 +31,9 @@
           class="input"
           placeholder="Nachricht eingeben …"
           autocomplete="off"
+          #messageInput
           [value]="draft()"
-          (input)="updateDraft($any($event.target).value)"
+          (input)="updateDraft(messageInput.value)"
         />
         <button type="submit" class="btn btn--primary" [disabled]="!canSend()">Senden</button>
       </form>

@@ -7,6 +7,10 @@ interface Operands {
   y: number | null;
 }
 
+type Operation = (x: number, y: number) => number;
+
+const REQUIRED_MESSAGE = 'Bitte einen Wert eingeben.';
+
 /**
  * Kleiner Taschenrechner auf Basis von Signal Forms: Das Modell ist ein
  * Signal, `form()` bindet Validierungslogik daran und `[formField]`
@@ -23,25 +27,29 @@ export class Calculator {
   protected readonly operands = signal<Operands>({ x: null, y: null });
 
   protected readonly calcForm = form(this.operands, (schema) => {
-    required(schema.x, { message: 'Bitte einen Wert eingeben.' });
-    required(schema.y, { message: 'Bitte einen Wert eingeben.' });
+    required(schema.x, { message: REQUIRED_MESSAGE });
+    required(schema.y, { message: REQUIRED_MESSAGE });
   });
 
   protected readonly result = signal(0);
 
   add(): void {
-    const { x, y } = this.operands();
-    this.result.set((x ?? 0) + (y ?? 0));
+    this.calculate((x, y) => x + y);
   }
 
   subtract(): void {
-    const { x, y } = this.operands();
-    this.result.set((x ?? 0) - (y ?? 0));
+    this.calculate((x, y) => x - y);
   }
 
   clear(): void {
     this.operands.set({ x: null, y: null });
     this.calcForm().reset();
     this.result.set(0);
+  }
+
+  /** Leere Felder zählen als 0. */
+  private calculate(operation: Operation): void {
+    const { x, y } = this.operands();
+    this.result.set(operation(x ?? 0, y ?? 0));
   }
 }

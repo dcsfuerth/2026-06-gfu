@@ -19,6 +19,42 @@ describe('BookList', () => {
     return Array.from(fixture.nativeElement.querySelectorAll('tbody tr'));
   }
 
+  /** Lässt ausstehende Promise-Ketten (z. B. nach einem HTTP-Flush) durchlaufen. */
+  async function settle(): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve));
+    await fixture.whenStable();
+  }
+
+  function dialog(): HTMLDialogElement {
+    return fixture.nativeElement.querySelector('dialog');
+  }
+
+  function dialogButton(label: string): HTMLButtonElement {
+    return Array.from(dialog().querySelectorAll('button')).find(
+      (button) => button.textContent?.trim() === label,
+    ) as HTMLButtonElement;
+  }
+
+  /** Klickt in der Zeile auf „Löschen“ und bestätigt die Rückfrage. */
+  async function deleteViaDialog(title: string): Promise<void> {
+    (
+      fixture.nativeElement.querySelector(
+        `button[aria-label="Buch „${title}“ löschen"]`,
+      ) as HTMLButtonElement
+    ).click();
+    await fixture.whenStable();
+    expect(dialog().open).toBe(true);
+    dialogButton('Löschen').click();
+    await fixture.whenStable();
+  }
+
+  /** Beantwortet den initialen GET /books mit den angegebenen Büchern. */
+  async function respondWithBooks(books: Book[]): Promise<void> {
+    TestBed.tick();
+    httpMock.expectOne((req) => req.url.endsWith('/books')).flush(books);
+    await fixture.whenStable();
+  }
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [BookList],
@@ -41,22 +77,37 @@ describe('BookList', () => {
   it('shows a loading state before the response arrives', async () => {
     TestBed.tick();
     expect(fixture.nativeElement.textContent).toContain('Bücher werden geladen');
-    httpMock.expectOne((req) => req.url.endsWith('/books')).flush([]);
-    await fixture.whenStable();
+    await respondWithBooks([]);
   });
 
   it('shows the empty state when no books exist', async () => {
-    TestBed.tick();
-    httpMock.expectOne((req) => req.url.endsWith('/books')).flush([]);
-    await fixture.whenStable();
+    await respondWithBooks([]);
     expect(fixture.nativeElement.textContent).toContain('Leider noch keine Bücher vorhanden.');
+  });
+
+  it('shows an error with a retry option when loading fails', async () => {
+    TestBed.tick();
+    httpMock
+      .expectOne((req) => req.url.endsWith('/books'))
+      .flush(null, { status: 500, statusText: 'Server Error' });
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.textContent).toContain('Die Bücher konnten nicht geladen werden.');
+    expect(fixture.nativeElement.querySelector('[role="alert"] button')?.textContent).toContain(
+      'Erneut versuchen',
+    );
   });
 
   describe('with books', () => {
     beforeEach(async () => {
-      TestBed.tick();
-      httpMock.expectOne((req) => req.url.endsWith('/books')).flush(BOOKS);
-      await fixture.whenStable();
+      await respondWithBooks(BOOKS);
+    });
+
+    it('renders a placeholder instead of an image for books without a cover', () => {
+      expect(fixture.nativeElement.querySelectorAll('img')).toHaveLength(0);
+      expect(
+        fixture.nativeElement.querySelectorAll('.book-table__cover--placeholder'),
+      ).toHaveLength(2);
     });
 
     it('renders one row per book', () => {
@@ -73,11 +124,20 @@ describe('BookList', () => {
       expect(rows()[0].textContent).toContain('RxJS kompakt');
     });
 
-    it('shows an empty-result hint when nothing matches', async () => {
+    it('shows an empty-result hint spanning all visible columns when nothing matches', async () => {
       fixture.componentInstance.updateSearch('Vue');
       await fixture.whenStable();
 
       expect(fixture.nativeElement.textContent).toContain('Keine Treffer für „Vue“');
+      expect(
+        fixture.nativeElement.querySelector('.book-table__empty')?.getAttribute('colspan'),
+      ).toBe('6');
+
+      fixture.componentInstance.toggleCover();
+      await fixture.whenStable();
+      expect(
+        fixture.nativeElement.querySelector('.book-table__empty')?.getAttribute('colspan'),
+      ).toBe('5');
     });
 
     it('toggles the cover column', async () => {
@@ -101,25 +161,43 @@ describe('BookList', () => {
       expect(ratings[1].getAttribute('aria-label')).toBe('4.5 von 5 Sternen');
     });
 
-    it('removes a book after a successful delete', async () => {
-      const pending = fixture.componentInstance.deleteBook(BOOKS[0]);
+    it('asks for confirmation and keeps the book when cancelled', async () => {
+      (
+        fixture.nativeElement.querySelector(
+          'button[aria-label="Buch „Angular Grundlagen“ löschen"]',
+        ) as HTMLButtonElement
+      ).click();
+      await fixture.whenStable();
+
+      expect(dialog().open).toBe(true);
+      expect(dialog().textContent).toContain('„Angular Grundlagen“ wird dauerhaft');
+
+      dialogButton('Abbrechen').click();
+      await fixture.whenStable();
+
+      expect(dialog().open).toBe(false);
+      expect(rows()).toHaveLength(2);
+      httpMock.expectNone((req) => req.method === 'DELETE');
+    });
+
+    it('removes a book after a confirmed, successful delete', async () => {
+      await deleteViaDialog('Angular Grundlagen');
       httpMock
         .expectOne((req) => req.method === 'DELETE' && req.url.endsWith('/books/111'))
         .flush(null);
-      await pending;
-      await fixture.whenStable();
+      await settle();
 
+      expect(dialog().open).toBe(false);
       expect(rows()).toHaveLength(1);
       expect(rows()[0].textContent).toContain('RxJS kompakt');
     });
 
     it('keeps the book and shows an error when the delete fails', async () => {
-      const pending = fixture.componentInstance.deleteBook(BOOKS[0]);
+      await deleteViaDialog('Angular Grundlagen');
       httpMock
         .expectOne((req) => req.method === 'DELETE')
         .flush(null, { status: 500, statusText: 'Server Error' });
-      await pending;
-      await fixture.whenStable();
+      await settle();
 
       expect(rows()).toHaveLength(2);
       expect(fixture.nativeElement.textContent).toContain('konnte nicht gelöscht werden');

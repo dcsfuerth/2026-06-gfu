@@ -74,6 +74,10 @@
   background: var(--color-surface-muted);
 }
 
+.book-table__cover--placeholder {
+  border: 1px dashed var(--color-border-strong);
+}
+
 .book-table__title a {
   font-weight: 500;
   color: var(--color-text);

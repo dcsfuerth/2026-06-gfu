@@ -1,9 +1,21 @@
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Rating } from '../../shared/rating/rating';
-import { Book } from '../book';
+import { Book, isDiscounted } from '../book';
 import { BookData } from '../bookdata/book-data';
+
+/** Spalten der Tabelle ohne die optionale Cover-Spalte. */
+const BASE_COLUMN_COUNT = 5;
 
 @Component({
   selector: 'books-book-list',
@@ -22,7 +34,18 @@ export class BookList {
   protected readonly coverVisible = signal(true);
   protected readonly deleteError = signal<string | null>(null);
 
-  protected readonly books = computed(() => this.booksResource.value() ?? []);
+  /** Das Buch, für das gerade die Lösch-Rückfrage offen ist. */
+  protected readonly pendingDelete = signal<Book | null>(null);
+
+  private readonly confirmDialog = viewChild<ElementRef<HTMLDialogElement>>('confirmDialog');
+
+  /**
+   * Im Fehlerzustand wirft `value()`; daher über `hasValue()` absichern,
+   * damit das Template die Fehlermeldung rendern kann.
+   */
+  protected readonly books = computed(() =>
+    this.booksResource.hasValue() ? this.booksResource.value() : [],
+  );
 
   /** Nach dem Suchbegriff gefilterte Liste (Titel, Groß-/Kleinschreibung egal). */
   protected readonly filteredBooks = computed(() => {
@@ -32,6 +55,30 @@ export class BookList {
   });
 
   protected readonly resultCount = computed(() => this.filteredBooks().length);
+
+  /** Anzahl der sichtbaren Spalten, z. B. für `colspan` der Hinweiszeile. */
+  protected readonly columnCount = computed(
+    () => BASE_COLUMN_COUNT + (this.coverVisible() ? 1 : 0),
+  );
+
+  protected readonly isDiscounted = isDiscounted;
+
+  constructor() {
+    // Der Dialog folgt dem Signal: offen, solange eine Rückfrage aussteht.
+    effect(() => {
+      const dialog = this.confirmDialog()?.nativeElement;
+      if (!dialog) {
+        return;
+      }
+      if (this.pendingDelete()) {
+        if (!dialog.open) {
+          dialog.showModal();
+        }
+      } else if (dialog.open) {
+        dialog.close();
+      }
+    });
+  }
 
   updateSearch(value: string): void {
     this.searchTerm.set(value);
@@ -48,7 +95,22 @@ export class BookList {
     );
   }
 
-  async deleteBook(book: Book): Promise<void> {
+  /** Öffnet die Rückfrage; gelöscht wird erst nach Bestätigung. */
+  requestDelete(book: Book): void {
+    this.pendingDelete.set(book);
+  }
+
+  cancelDelete(): void {
+    this.pendingDelete.set(null);
+  }
+
+  confirmDelete(): Promise<void> {
+    const book = this.pendingDelete();
+    this.pendingDelete.set(null);
+    return book ? this.deleteBook(book) : Promise.resolve();
+  }
+
+  private async deleteBook(book: Book): Promise<void> {
     this.deleteError.set(null);
     try {
       await this.bookData.deleteBook(book.isbn);

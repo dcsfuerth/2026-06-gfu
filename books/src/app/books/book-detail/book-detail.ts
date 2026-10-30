@@ -1,7 +1,9 @@
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Rating } from '../../shared/rating/rating';
+import { isDiscounted } from '../book';
 import { BookData } from '../bookdata/book-data';
 
 @Component({
@@ -19,4 +21,12 @@ export class BookDetail {
 
   /** Lädt das Buch und lädt automatisch neu, wenn sich die ISBN ändert. */
   protected readonly bookResource = this.bookData.getBook(this.isbn);
+
+  /** Das Backend kennt die ISBN nicht; alle anderen Fehler sind technischer Natur. */
+  protected readonly notFound = computed(() => {
+    const error = this.bookResource.error();
+    return error instanceof HttpErrorResponse && error.status === HttpStatusCode.NotFound;
+  });
+
+  protected readonly isDiscounted = isDiscounted;
 }

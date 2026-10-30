@@ -1,5 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
+/** SVG-Pfad eines fünfzackigen Sterns im 24x24-Raster. */
+const STAR_PATH =
+  'M12 2l2.9 6.26 6.87.6-5.2 4.52 1.56 6.72L12 17.27 5.87 20.1l1.56-6.72-5.2-4.52 6.87-.6L12 2z';
+
 /**
  * Sternebewertung mit Teilsternen.
  *
@@ -26,6 +30,8 @@ export class Rating {
   readonly readonly = input(false);
 
   readonly starsChange = output<number>();
+
+  protected readonly starPath = STAR_PATH;
 
   /**
    * Füllgrad (0–100 %) je Stern, abgeleitet aus `stars`.

@@ -99,10 +99,25 @@ When(
 
 // --- Löschen -----------------------------------------------------------------
 
-When('ich das Buch {string} lösche', async ({ page }, title: string) => {
-  const deleteRequest = page.waitForRequest((req) => req.method() === 'DELETE');
+/** Öffnet die Lösch-Rückfrage für das Buch und liefert den Dialog. */
+async function openDeleteDialog(page: Page, title: string): Promise<Locator> {
   await page.getByRole('button', { name: `Buch „${title}“ löschen` }).click();
+  const dialog = page.getByRole('dialog', { name: 'Buch löschen?' });
+  await expect(dialog).toBeVisible();
+  return dialog;
+}
+
+When('ich das Buch {string} lösche', async ({ page }, title: string) => {
+  const dialog = await openDeleteDialog(page, title);
+  const deleteRequest = page.waitForRequest((req) => req.method() === 'DELETE');
+  await dialog.getByRole('button', { name: 'Löschen', exact: true }).click();
   await deleteRequest;
+});
+
+When('ich das Löschen von {string} abbreche', async ({ page }, title: string) => {
+  const dialog = await openDeleteDialog(page, title);
+  await dialog.getByRole('button', { name: 'Abbrechen' }).click();
+  await expect(dialog).toBeHidden();
 });
 
 Then('wurde das Buch mit der ISBN {string} am Backend gelöscht', async ({ page }, isbn: string) => {

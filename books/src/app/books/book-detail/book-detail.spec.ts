@@ -19,6 +19,10 @@ describe('BookDetail', () => {
   let fixture: ComponentFixture<BookDetail>;
   let httpMock: HttpTestingController;
 
+  function expectBookRequest(isbn: string) {
+    return httpMock.expectOne((r) => r.url.endsWith(`/books/${isbn}`));
+  }
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [BookDetail],
@@ -41,13 +45,13 @@ describe('BookDetail', () => {
   });
 
   it('requests the book for the given isbn', () => {
-    const req = httpMock.expectOne((r) => r.url.endsWith('/books/123-456-789'));
+    const req = expectBookRequest(BOOK.isbn);
     expect(req.request.method).toBe('GET');
     req.flush(BOOK);
   });
 
   it('renders the book', async () => {
-    httpMock.expectOne((r) => r.url.endsWith('/books/123-456-789')).flush(BOOK);
+    expectBookRequest(BOOK.isbn).flush(BOOK);
     await fixture.whenStable();
 
     const text = fixture.nativeElement.textContent as string;
@@ -56,25 +60,36 @@ describe('BookDetail', () => {
     expect(text).toContain('Sehr empfehlenswert.');
   });
 
-  it('shows a not-found message when the request fails', async () => {
-    httpMock
-      .expectOne((r) => r.url.endsWith('/books/123-456-789'))
-      .flush(null, { status: 404, statusText: 'Not Found' });
+  it('shows a not-found message when the backend answers 404', async () => {
+    expectBookRequest(BOOK.isbn).flush(null, { status: 404, statusText: 'Not Found' });
     await fixture.whenStable();
 
     expect(fixture.nativeElement.textContent).toContain('Buch nicht gefunden');
+    expect(fixture.nativeElement.textContent).not.toContain('Erneut versuchen');
+  });
+
+  it('shows a technical error with retry for other failures', async () => {
+    expectBookRequest(BOOK.isbn).flush(null, { status: 500, statusText: 'Server Error' });
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.textContent).toContain('Das Buch konnte nicht geladen werden.');
+    expect(fixture.nativeElement.textContent).not.toContain('Buch nicht gefunden');
+
+    (fixture.nativeElement.querySelector('button') as HTMLButtonElement).click();
+    TestBed.tick();
+    expectBookRequest(BOOK.isbn).flush(BOOK);
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Angular 22');
   });
 
   it('reloads when the isbn changes', async () => {
-    httpMock.expectOne((r) => r.url.endsWith('/books/123-456-789')).flush(BOOK);
+    expectBookRequest(BOOK.isbn).flush(BOOK);
     await fixture.whenStable();
 
     fixture.componentRef.setInput('isbn', '987');
     TestBed.tick();
 
-    httpMock
-      .expectOne((r) => r.url.endsWith('/books/987'))
-      .flush({ ...BOOK, title: 'Anderes Buch' });
+    expectBookRequest('987').flush({ ...BOOK, title: 'Anderes Buch' });
     await fixture.whenStable();
     expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Anderes Buch');
   });

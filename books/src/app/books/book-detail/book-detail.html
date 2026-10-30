@@ -42,7 +42,7 @@
             <dt class="book-detail__label">Preis</dt>
             <dd class="book-detail__value book-detail__price">
               {{ book.price | currency }}
-              @if (book.price < 20) {
+              @if (isDiscounted(book)) {
                 <span class="badge badge--success">Angebot</span>
               }
             </dd>
@@ -68,13 +68,20 @@
         </dl>
       </div>
     </article>
-  } @else {
+  } @else if (notFound()) {
     <div class="card card--padded book-detail--empty">
       <h1 class="page__title">Buch nicht gefunden</h1>
       <p class="muted">
         Zur ISBN <span class="mono">{{ isbn() }}</span> ist kein Buch hinterlegt.
       </p>
       <a class="btn" routerLink="/books">Zur Buchliste</a>
+    </div>
+  } @else {
+    <div class="notice notice--error" role="alert">
+      Das Buch konnte nicht geladen werden.
+      <button type="button" class="btn btn--ghost" (click)="bookResource.reload()">
+        Erneut versuchen
+      </button>
     </div>
   }
 </section>

@@ -1,14 +1,7 @@
 import type { Page } from '@playwright/test';
+import type { Book } from '../../src/app/books/book';
 
-/** Buch-Datenmodell, identisch zu src/app/books/book.ts */
-export interface Book {
-  isbn: string;
-  title: string;
-  price: number;
-  coverUrl: string;
-  stars: number;
-  comment?: string;
-}
+export type { Book };
 
 /**
  * Deterministische Testdaten. Bewusst so gewählt, dass die fachlichen

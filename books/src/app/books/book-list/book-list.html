@@ -38,8 +38,9 @@
           placeholder="Bücher suchen …"
           aria-label="Bücher suchen"
           autocomplete="off"
+          #search
           [value]="searchTerm()"
-          (input)="updateSearch($any($event.target).value)"
+          (input)="updateSearch(search.value)"
         />
         @if (searchTerm()) {
           <p class="toolbar__hint muted">Gefiltert nach „{{ searchTerm() }}“</p>
@@ -69,15 +70,22 @@
               <tr>
                 @if (coverVisible()) {
                   <td>
-                    <img
-                      class="book-table__cover"
-                      [src]="book.coverUrl"
-                      [alt]="'Cover von ' + book.title"
-                      width="40"
-                      height="60"
-                      loading="lazy"
-                      decoding="async"
-                    />
+                    @if (book.coverUrl) {
+                      <img
+                        class="book-table__cover"
+                        [src]="book.coverUrl"
+                        [alt]="'Cover von ' + book.title"
+                        width="40"
+                        height="60"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    } @else {
+                      <div
+                        class="book-table__cover book-table__cover--placeholder"
+                        aria-hidden="true"
+                      ></div>
+                    }
                   </td>
                 }
                 <td class="book-table__title">
@@ -85,7 +93,7 @@
                 </td>
                 <td class="mono muted">{{ book.isbn }}</td>
                 <td class="book-table__num">
-                  <span class="price" [class.price--discount]="book.price < 20">
+                  <span class="price" [class.price--discount]="isDiscounted(book)">
                     {{ book.price | currency }}
                   </span>
                 </td>
@@ -100,7 +108,8 @@
                     type="button"
                     class="btn btn--danger"
                     [attr.aria-label]="'Buch „' + book.title + '“ löschen'"
-                    (click)="deleteBook(book)"
+                    aria-haspopup="dialog"
+                    (click)="requestDelete(book)"
                   >
                     Löschen
                   </button>
@@ -108,7 +117,7 @@
               </tr>
             } @empty {
               <tr>
-                <td class="book-table__empty muted" colspan="6">
+                <td class="book-table__empty muted" [attr.colspan]="columnCount()">
                   Keine Treffer für „{{ searchTerm() }}“.
                 </td>
               </tr>
@@ -118,4 +127,25 @@
       </div>
     </div>
   }
+
+  <dialog
+    #confirmDialog
+    class="dialog"
+    aria-labelledby="delete-dialog-title"
+    aria-describedby="delete-dialog-text"
+    (close)="cancelDelete()"
+  >
+    @if (pendingDelete(); as book) {
+      <h2 id="delete-dialog-title" class="dialog__title">Buch löschen?</h2>
+      <p id="delete-dialog-text" class="dialog__text">
+        „{{ book.title }}“ wird dauerhaft aus der Sammlung entfernt.
+      </p>
+      <div class="dialog__actions">
+        <button type="button" class="btn" (click)="cancelDelete()">Abbrechen</button>
+        <button type="button" class="btn btn--danger-solid" (click)="confirmDelete()">
+          Löschen
+        </button>
+      </div>
+    }
+  </dialog>
 </section>

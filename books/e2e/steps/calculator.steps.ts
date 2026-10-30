@@ -1,9 +1,12 @@
 import { expect } from '@playwright/test';
 import { Then, When } from './fixtures';
 
-When('ich in das Feld {string} den Wert {string} eingebe', async ({ page }, label, value) => {
-  await page.getByLabel(label).fill(value);
-});
+When(
+  'ich in das Feld {string} den Wert {string} eingebe',
+  async ({ page }, label: string, value: string) => {
+    await page.getByLabel(label).fill(value);
+  },
+);
 
 When('ich im Feld {string} Enter drücke', async ({ page }, label: string) => {
   await page.getByLabel(label).press('Enter');
