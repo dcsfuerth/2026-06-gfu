@@ -1,4 +1,6 @@
 {
-    "files.autoSave": "afterDelay",
-    "editor.formatOnSave": true
+  "files.autoSave": "afterDelay",
+  "editor.formatOnSave": true,
+  "cucumber.features": ["e2e/features/**/*.feature"],
+  "cucumber.glue": ["e2e/steps/**/*.ts"]
 }

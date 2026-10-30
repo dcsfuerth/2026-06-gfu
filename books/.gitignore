@@ -49,3 +49,6 @@ Thumbs.db
 /blob-report
 /playwright/.cache
 /.playwright-mcp
+
+# playwright-bdd (generierte Tests)
+/.features-gen

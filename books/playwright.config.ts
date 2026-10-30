@@ -1,18 +1,32 @@
 import { defineConfig, devices } from '@playwright/test';
+import { defineBddConfig } from 'playwright-bdd';
+
+/**
+ * BDD-Konfiguration (playwright-bdd)
+ *
+ * - `features` : Gherkin-Szenarien unter ./e2e/features (Standardsprache Deutsch)
+ * - `steps`    : Step-Definitionen und Fixtures unter ./e2e/steps
+ * - `bddgen`   : erzeugt daraus Playwright-Tests in ./.features-gen (nicht versioniert)
+ */
+const testDir = defineBddConfig({
+  features: 'e2e/features/**/*.feature',
+  steps: 'e2e/steps/**/*.ts',
+  language: 'de',
+  missingSteps: 'fail-on-gen',
+});
 
 /**
  * Playwright-Konfiguration
  *
- * - `testDir`   : Alle E2E-Tests liegen unter ./e2e
  * - `webServer` : Startet bei Bedarf `npm start` (ng serve) und wartet auf Port 4200.
  *                 Läuft bereits ein Dev-Server, wird dieser wiederverwendet.
- * - `baseURL`   : Erlaubt relative Pfade in den Tests, z. B. page.goto('/books').
+ * - `baseURL`   : Erlaubt relative Pfade in den Steps, z. B. page.goto('/books').
  *
- * Die Tests mocken den json-server (Port 3000) per page.route(), sind dadurch
+ * Die Szenarien mocken den json-server (Port 3000) per page.route(), sind dadurch
  * deterministisch und benötigen kein laufendes Backend.
  */
 export default defineConfig({
-  testDir: './e2e',
+  testDir,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -23,7 +37,7 @@ export default defineConfig({
     baseURL: 'http://localhost:4200',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure-and-retries'
+    video: 'retain-on-failure-and-retries',
   },
 
   projects: [
