@@ -97,6 +97,15 @@ When(
   },
 );
 
+When(
+  'ich beim Buch {string} auf {string} klicke und das Speichern abwarte',
+  async ({ page }, title: string, button: string) => {
+    const saved = page.waitForResponse((res) => res.request().method() === 'PATCH');
+    await rowOf(page, title).getByRole('button', { name: button, exact: true }).click();
+    await saved;
+  },
+);
+
 // --- Löschen -----------------------------------------------------------------
 
 /** Öffnet die Lösch-Rückfrage für das Buch und liefert den Dialog. */

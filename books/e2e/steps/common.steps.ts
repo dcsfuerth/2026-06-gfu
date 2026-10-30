@@ -7,6 +7,10 @@ Given('ich öffne die Seite {string}', async ({ page }, path: string) => {
   await page.goto(path);
 });
 
+When('ich die Seite neu lade', async ({ page }) => {
+  await page.reload();
+});
+
 When('ich auf den Link {string} klicke', async ({ page }, name: string) => {
   await page.getByRole('link', { name, exact: true }).click();
 });

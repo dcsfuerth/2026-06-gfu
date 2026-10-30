@@ -32,7 +32,7 @@ export const MOCK_BOOKS: Book[] = [
 // Browser die Cross-Origin-Antwort und HttpClient läuft in einen Fehler.
 const CORS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, DELETE, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, PATCH, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': '*',
 };
 
@@ -52,7 +52,8 @@ export async function mockBookApi(page: Page, books: Book[] = MOCK_BOOKS): Promi
   // Eigene Kopie, damit DELETE den Zustand innerhalb eines Tests verändern kann.
   const state = books.map((book) => ({ ...book }));
 
-  // /books/:isbn – Einzelbuch (GET) und Löschen (DELETE); muss vor der Listen-Route stehen
+  // /books/:isbn – Einzelbuch (GET), Ändern (PATCH) und Löschen (DELETE);
+  // muss vor der Listen-Route stehen
   await page.route(`${API}/books/*`, async (route) => {
     const request = route.request();
     if (request.method() === 'OPTIONS') {
@@ -71,6 +72,13 @@ export async function mockBookApi(page: Page, books: Book[] = MOCK_BOOKS): Promi
     if (request.method() === 'DELETE') {
       state.splice(index, 1);
       await route.fulfill({ status: 200, json: {}, headers: CORS });
+      return;
+    }
+
+    if (request.method() === 'PATCH') {
+      const changes = request.postDataJSON() as Partial<Book>;
+      state[index] = { ...state[index], ...changes };
+      await route.fulfill({ json: state[index], headers: CORS });
       return;
     }
 

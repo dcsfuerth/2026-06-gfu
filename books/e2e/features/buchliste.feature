@@ -62,6 +62,11 @@ Funktionalität: Buchliste
     Wenn ich beim Buch "Angular 21" auf "Bewertung verringern" klicke
     Dann hat das Buch "Angular 21" eine Bewertung von "3.4 von 5 Sternen"
 
+  Szenario: Eine geänderte Bewertung wird im Backend gespeichert
+    Wenn ich beim Buch "Angular 21" auf "Bewertung erhöhen" klicke und das Speichern abwarte
+    Und ich die Seite neu lade
+    Dann hat das Buch "Angular 21" eine Bewertung von "3.6 von 5 Sternen"
+
   Szenario: Ein Buch wird über das Backend gelöscht
     Wenn ich das Buch "Angular 21" lösche
     Dann wurde das Buch mit der ISBN "123-456-789" am Backend gelöscht

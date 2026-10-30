@@ -47,7 +47,7 @@
         }
       </div>
 
-      @if (deleteError(); as message) {
+      @if (actionError(); as message) {
         <p class="notice notice--error" role="alert">{{ message }}</p>
       }
 
@@ -98,10 +98,7 @@
                   </span>
                 </td>
                 <td>
-                  <books-rating
-                    [stars]="book.stars"
-                    (starsChange)="updateStars(book.isbn, $event)"
-                  />
+                  <books-rating [stars]="book.stars" (starsChange)="updateStars(book, $event)" />
                 </td>
                 <td class="book-table__actions">
                   <button

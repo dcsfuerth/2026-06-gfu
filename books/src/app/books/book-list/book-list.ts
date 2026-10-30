@@ -32,7 +32,8 @@ export class BookList {
 
   protected readonly searchTerm = signal('');
   protected readonly coverVisible = signal(true);
-  protected readonly deleteError = signal<string | null>(null);
+  /** Fehlermeldung der letzten Aktion (Bewerten oder Löschen). */
+  protected readonly actionError = signal<string | null>(null);
 
   /** Das Buch, für das gerade die Lösch-Rückfrage offen ist. */
   protected readonly pendingDelete = signal<Book | null>(null);
@@ -88,11 +89,20 @@ export class BookList {
     this.coverVisible.update((visible) => !visible);
   }
 
-  /** Übernimmt eine geänderte Bewertung in die lokale Liste. */
-  updateStars(isbn: string, stars: number): void {
-    this.booksResource.value.update((books) =>
-      books?.map((book) => (book.isbn === isbn ? { ...book, stars } : book)),
-    );
+  /**
+   * Speichert eine geänderte Bewertung. Die Liste wird sofort aktualisiert
+   * (optimistisch); schlägt das Speichern fehl, wird der alte Wert
+   * wiederhergestellt.
+   */
+  async updateStars(book: Book, stars: number): Promise<void> {
+    this.actionError.set(null);
+    this.patchBook(book.isbn, { stars });
+    try {
+      await this.bookData.updateStars(book.isbn, stars);
+    } catch {
+      this.patchBook(book.isbn, { stars: book.stars });
+      this.actionError.set(`Die Bewertung von „${book.title}“ konnte nicht gespeichert werden.`);
+    }
   }
 
   /** Öffnet die Rückfrage; gelöscht wird erst nach Bestätigung. */
@@ -111,12 +121,19 @@ export class BookList {
   }
 
   private async deleteBook(book: Book): Promise<void> {
-    this.deleteError.set(null);
+    this.actionError.set(null);
     try {
       await this.bookData.deleteBook(book.isbn);
       this.booksResource.value.update((books) => books?.filter((b) => b.isbn !== book.isbn));
     } catch {
-      this.deleteError.set(`„${book.title}“ konnte nicht gelöscht werden.`);
+      this.actionError.set(`„${book.title}“ konnte nicht gelöscht werden.`);
     }
+  }
+
+  /** Ändert ein Buch in der lokalen Liste. */
+  private patchBook(isbn: string, changes: Partial<Book>): void {
+    this.booksResource.value.update((books) =>
+      books?.map((book) => (book.isbn === isbn ? { ...book, ...changes } : book)),
+    );
   }
 }

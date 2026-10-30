@@ -152,13 +152,39 @@ describe('BookList', () => {
       expect(coverHeader()).toBe(false);
     });
 
-    it('updates the stars of a single book', async () => {
-      fixture.componentInstance.updateStars('111', 3.6);
+    function ratingLabels(): string[] {
+      return Array.from(fixture.nativeElement.querySelectorAll('.rating__stars')).map((el) =>
+        (el as HTMLElement).getAttribute('aria-label'),
+      ) as string[];
+    }
+
+    it('saves a changed rating via PATCH and updates the list optimistically', async () => {
+      const pending = fixture.componentInstance.updateStars(BOOKS[0], 3.6);
+      await fixture.whenStable();
+      expect(ratingLabels()).toEqual(['3.6 von 5 Sternen', '4.5 von 5 Sternen']);
+
+      const req = httpMock.expectOne((r) => r.method === 'PATCH' && r.url.endsWith('/books/111'));
+      expect(req.request.body).toEqual({ stars: 3.6 });
+      req.flush({ ...BOOKS[0], stars: 3.6 });
+      await pending;
       await fixture.whenStable();
 
-      const ratings = fixture.nativeElement.querySelectorAll('.rating__stars');
-      expect(ratings[0].getAttribute('aria-label')).toBe('3.6 von 5 Sternen');
-      expect(ratings[1].getAttribute('aria-label')).toBe('4.5 von 5 Sternen');
+      expect(ratingLabels()).toEqual(['3.6 von 5 Sternen', '4.5 von 5 Sternen']);
+      expect(fixture.nativeElement.textContent).not.toContain('konnte nicht gespeichert werden');
+    });
+
+    it('restores the old rating and shows an error when saving fails', async () => {
+      const pending = fixture.componentInstance.updateStars(BOOKS[0], 3.6);
+      httpMock
+        .expectOne((r) => r.method === 'PATCH')
+        .flush(null, { status: 500, statusText: 'Server Error' });
+      await pending;
+      await fixture.whenStable();
+
+      expect(ratingLabels()).toEqual(['3.5 von 5 Sternen', '4.5 von 5 Sternen']);
+      expect(fixture.nativeElement.textContent).toContain(
+        'Die Bewertung von „Angular Grundlagen“ konnte nicht gespeichert werden.',
+      );
     });
 
     it('asks for confirmation and keeps the book when cancelled', async () => {

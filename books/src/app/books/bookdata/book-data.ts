@@ -28,13 +28,20 @@ export class BookData {
 
   /** Ein einzelnes Buch als Resource; lädt neu, sobald sich `isbn` ändert. */
   getBook(isbn: Signal<string>): HttpResourceRef<Book | undefined> {
-    return httpResource<Book>(() => `${this.baseUrl}/books/${encodeURIComponent(isbn())}`);
+    return httpResource<Book>(() => this.bookUrl(isbn()));
+  }
+
+  /** Speichert eine neue Bewertung und liefert das aktualisierte Buch. */
+  updateStars(isbn: string, stars: number): Promise<Book> {
+    return firstValueFrom(this.http.patch<Book>(this.bookUrl(isbn), { stars }));
   }
 
   /** Löscht ein Buch auf dem Server. */
   deleteBook(isbn: string): Promise<void> {
-    return firstValueFrom(
-      this.http.delete<void>(`${this.baseUrl}/books/${encodeURIComponent(isbn)}`),
-    );
+    return firstValueFrom(this.http.delete<void>(this.bookUrl(isbn)));
+  }
+
+  private bookUrl(isbn: string): string {
+    return `${this.baseUrl}/books/${encodeURIComponent(isbn)}`;
   }
 }
